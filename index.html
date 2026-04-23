@@ -11,38 +11,14 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      background: #f4f6fb;
-      font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
-    }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #f4f6fb; font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; }
 
-    .p5 {
-      width: 100%; height: 100vh;
-      background: #f4f6fb;
-      position: relative;
-      overflow: hidden;
-      user-select: none;
-      display: flex;
-      flex-direction: column;
-    }
+    .p5 { width: 100%; height: 100vh; background: #f4f6fb; position: relative; overflow: hidden; user-select: none; display: flex; flex-direction: column; }
 
-    .bg-lines {
-      position: absolute; inset: 0; pointer-events: none;
-      background-image: repeating-linear-gradient(
-        -55deg, transparent, transparent 38px,
-        rgba(30,90,200,0.04) 38px, rgba(30,90,200,0.04) 39px
-      );
-    }
+    .bg-lines { position: absolute; inset: 0; pointer-events: none; background-image: repeating-linear-gradient(-55deg, transparent, transparent 38px, rgba(30,90,200,0.04) 38px, rgba(30,90,200,0.04) 39px); }
 
     /* ── BOOT ── */
-    .boot-overlay {
-      position: absolute; inset: 0; z-index: 100;
-      background: #f4f6fb;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 28px;
-    }
+    .boot-overlay { position: absolute; inset: 0; z-index: 100; background: #f4f6fb; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
     .boot-monogram { transform: scale(0); animation: monoPop 0.5s cubic-bezier(.34,1.56,.64,1) 0.3s forwards; }
     .boot-label { font-size: 11px; color: #1a5ce8; letter-spacing: 6px; text-transform: uppercase; font-weight: 700; opacity: 0; animation: fadeIn 0.4s ease 0.85s forwards; }
     .boot-bar-wrap { width: 200px; height: 2px; background: #e2eaf8; overflow: hidden; opacity: 0; animation: fadeIn 0.3s ease 1s forwards; }
@@ -53,34 +29,59 @@
     @keyframes fadeIn { to { opacity: 1; } }
     @keyframes barFill { to { width: 100%; } }
     @keyframes scan { from { top: -4px; } to { top: 110%; } }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes toastIn { from { opacity:0; transform: translateX(40px); } to { opacity:1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity:1; transform: translateX(0); } to { opacity:0; transform: translateX(40px); } }
+    @keyframes idlePulse { 0%,100% { opacity:0.6; transform:scale(1) rotate(45deg); } 50% { opacity:1; transform:scale(1.12) rotate(45deg); } }
+    @keyframes xpFill { from { width: 0; } }
 
     .scanline { position: absolute; left: 0; right: 0; height: 2px; background: rgba(26,92,232,0.15); top: -4px; pointer-events: none; z-index: 200; }
 
-    /* ── TOP BAR ── */
-    .top-bar {
-      flex-shrink: 0; position: relative; z-index: 10;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 3vh 4vw 0;
-      opacity: 0; transform: translateY(-18px);
+    /* ── WIPE OVERLAY ── */
+    .wipe { position: absolute; inset: 0; z-index: 50; pointer-events: none; overflow: hidden; }
+    .wipe-slash {
+      position: absolute; top: 0; bottom: 0;
+      width: 200%; background: #1a5ce8;
+      transform: translateX(-110%) skewX(-12deg);
+      transform-origin: top left;
+      transition: transform 0s;
     }
+    .wipe.go .wipe-slash { transition: transform 0.22s cubic-bezier(.4,0,.6,1); transform: translateX(0%) skewX(-12deg); }
+    .wipe.out .wipe-slash { transition: transform 0.22s cubic-bezier(.4,0,.6,1) 0.05s; transform: translateX(110%) skewX(-12deg); }
+
+    /* ── SOUND TOGGLE ── */
+    .sound-btn { position: absolute; top: 14px; right: 14px; z-index: 20; width: 32px; height: 32px; border: 1px solid #d4e0f7; background: #f8fbff; cursor: pointer; display: flex; align-items: center; justify-content: center; clip-path: polygon(0 0,100% 0,100% 75%,75% 100%,0 100%); transition: background 0.2s; opacity: 0; }
+    .sound-btn:hover { background: #e8f0fc; }
+    .sound-btn svg { width: 14px; height: 14px; }
+
+    /* ── ACHIEVEMENT TOAST ── */
+    .toast { position: absolute; bottom: 60px; right: 24px; z-index: 80; background: #0d1b3e; border: 1px solid #1a5ce8; padding: 12px 16px; display: flex; align-items: center; gap: 12px; clip-path: polygon(0 0,100% 0,100% 80%,95% 100%,0 100%); min-width: 260px; opacity: 0; pointer-events: none; }
+    .toast.show { animation: toastIn 0.4s cubic-bezier(.34,1.2,.64,1) forwards; pointer-events: auto; }
+    .toast.hide { animation: toastOut 0.35s ease forwards; }
+    .toast-icon { font-size: 20px; flex-shrink: 0; }
+    .toast-body { display: flex; flex-direction: column; gap: 2px; }
+    .toast-label { font-size: 9px; color: #1a5ce8; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
+    .toast-title { font-size: 14px; color: #fff; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* ── TOP BAR ── */
+    .top-bar { flex-shrink: 0; position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 3vh 4vw 0; opacity: 0; transform: translateY(-18px); }
     .top-left { display: flex; flex-direction: column; }
     .name-tag { display: inline-block; background: #1a5ce8; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 3px 28px 3px 10px; clip-path: polygon(0 0,100% 0,97% 100%,0 100%); margin-bottom: 8px; align-self: flex-start; }
-    .main-name { font-size: clamp(30px, 4.8vw, 58px); font-weight: 700; line-height: 1; text-transform: uppercase; letter-spacing: 3px; color: #0d1b3e; }
+    .main-name { font-size: clamp(30px,4.8vw,58px); font-weight: 700; line-height: 1; text-transform: uppercase; letter-spacing: 3px; color: #0d1b3e; }
     .main-name span { color: #1a5ce8; }
-    .sub-title { font-size: clamp(10px, 1vw, 13px); color: #7a90b8; letter-spacing: 4px; text-transform: uppercase; margin-top: 7px; font-family: 'Barlow', sans-serif; font-weight: 400; }
-
+    .sub-title { font-size: clamp(10px,1vw,13px); color: #7a90b8; letter-spacing: 4px; text-transform: uppercase; margin-top: 7px; font-family: 'Barlow', sans-serif; font-weight: 400; }
     .jb-mark { flex-shrink: 0; cursor: default; }
     .jb-mark svg { display: block; }
     .jb-hex { fill: #f0f5ff; stroke: #1a5ce8; stroke-width: 2; transition: fill 0.3s; }
     .jb-mark:hover .jb-hex { fill: #1a5ce8; }
     .jb-text { font-size: 22px; font-weight: 700; fill: #1a5ce8; font-family: 'Barlow Condensed', Arial, sans-serif; letter-spacing: 1px; transition: fill 0.3s; }
     .jb-mark:hover .jb-text { fill: #fff; }
+    .jb-idle { transform-box: fill-box; transform-origin: center; }
 
     .divider { flex-shrink: 0; height: 2px; margin: 2vh 4vw; background: #1a5ce8; clip-path: polygon(0 0,100% 0,98.5% 100%,0 100%); position: relative; z-index: 10; transform: scaleX(0); transform-origin: left; opacity: 0; }
 
     /* ── MAIN AREA ── */
     .menu-area { flex: 1; display: flex; padding: 0 4vw; gap: 2.5vw; position: relative; z-index: 10; min-height: 0; }
-
     .menu-list { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: clamp(180px,17vw,240px); flex-shrink: 0; }
     .menu-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; clip-path: polygon(0 0,100% 0,97% 100%,0 100%); border-left: 3px solid transparent; transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease; opacity: 0; transform: translateX(-40px); }
     .menu-item:hover, .menu-item.active { background: #1a5ce8; border-left-color: #fff; transform: translateX(6px); }
@@ -94,12 +95,14 @@
     /* ── PANEL ── */
     .panel { flex: 1; background: #fff; border: 1px solid #d4e0f7; clip-path: polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); padding: clamp(20px,3vw,40px); position: relative; overflow: hidden; opacity: 0; transform: translateY(20px); display: flex; flex-direction: column; min-height: 0; }
     .panel-bg-num { position: absolute; right: 18px; bottom: 10px; font-size: clamp(90px,12vw,160px); font-weight: 700; color: rgba(26,92,232,0.035); line-height: 1; pointer-events: none; letter-spacing: -8px; }
-
     .panel-section { display: none; flex-direction: column; flex: 1; min-height: 0; }
     .panel-section.visible { display: flex; }
 
-    .panel-title { flex-shrink: 0; font-size: 10px; color: #1a5ce8; letter-spacing: 5px; text-transform: uppercase; font-weight: 700; margin-bottom: clamp(14px,2.2vh,26px); display: flex; align-items: center; gap: 12px; }
+    /* ── TYPEWRITER TITLE ── */
+    .panel-title { flex-shrink: 0; font-size: 10px; color: #1a5ce8; letter-spacing: 5px; text-transform: uppercase; font-weight: 700; margin-bottom: clamp(14px,2.2vh,26px); display: flex; align-items: center; gap: 12px; min-height: 18px; }
     .panel-title::after { content: ''; flex: 1; height: 1px; background: #e2eaf8; }
+    .title-cursor { display: inline-block; width: 2px; height: 1em; background: #1a5ce8; margin-left: 2px; animation: blink 0.8s step-end infinite; vertical-align: middle; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
     .panel-body { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding-right: 4px; }
     .panel-body::-webkit-scrollbar { width: 3px; }
@@ -122,7 +125,6 @@
     .about-body strong { color: #0d1b3e; font-weight: 500; }
     .about-status { display: flex; align-items: center; gap: 10px; padding: clamp(10px,1.4vh,16px) 14px; background: #f0f5ff; border-left: 3px solid #1a5ce8; margin-top: auto; }
     .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; flex-shrink: 0; animation: pulse 2s ease infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .status-text { font-family: 'Barlow', sans-serif; font-size: clamp(11px,1vw,13px); color: #2c3e6b; font-weight: 500; }
     .about-tags { display: flex; flex-wrap: wrap; gap: 7px; }
     .about-tag { font-size: clamp(10px,0.85vw,12px); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 12px; border: 1px solid #d4e0f7; color: #4a6aaa; background: #f8fbff; clip-path: polygon(0 0,100% 0,96% 100%,0 100%); }
@@ -131,17 +133,17 @@
     .stat-val { font-size: clamp(24px,3vw,42px); font-weight: 700; color: #1a5ce8; line-height: 1; }
     .stat-label { font-family: 'Barlow', sans-serif; font-size: clamp(8px,0.7vw,10px); color: #8faad4; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; font-weight: 400; }
 
-    /* ── SKILLS ── */
-    .skills-layout { flex: 1; display: flex; flex-direction: column; gap: clamp(12px,1.8vh,22px); }
-    .skill-block { display: flex; flex-direction: column; gap: clamp(8px,1.2vh,14px); flex: 1; }
+    /* ── SKILLS / XP ── */
+    .skills-layout { flex: 1; display: flex; flex-direction: column; gap: clamp(10px,1.5vh,18px); }
+    .skill-block { display: flex; flex-direction: column; gap: clamp(6px,1vh,12px); flex: 1; }
     .skill-section-title { font-size: clamp(9px,0.8vw,11px); color: #a0b2d0; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
-    .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px,1.4vh,18px); }
-    .skill-item { display: flex; flex-direction: column; gap: 7px; }
-    .skill-name { font-size: clamp(12px,1.1vw,15px); color: #2c3e6b; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
-    .skill-bar-bg { height: 4px; background: #e8f0fc; overflow: hidden; }
-    .skill-bar-fill { height: 100%; background: #1a5ce8; width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
-    .badge-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
-    .skill-badge { font-size: clamp(10px,0.9vw,12px); font-weight: 700; letter-spacing: 1.5px; padding: 6px 14px; border: 1px solid #c5d4f7; color: #1a5ce8; background: #f0f5ff; clip-path: polygon(0 0,100% 0,96% 100%,0 100%); text-transform: uppercase; opacity: 0; transform: translateY(6px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.25,1,.5,1); }
+    .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(8px,1.2vh,14px); }
+    .skill-item { display: flex; flex-direction: column; gap: 5px; }
+    .skill-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .skill-name { font-size: clamp(11px,1vw,14px); color: #2c3e6b; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+    .skill-lvl { font-size: 9px; color: #1a5ce8; font-weight: 700; letter-spacing: 1px; }
+    .xp-bar-bg { height: 5px; background: #e8f0fc; overflow: hidden; position: relative; clip-path: polygon(0 0,100% 0,98% 100%,0 100%); }
+    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #1a5ce8, #5b8ef0); width: 0; transition: width 1.3s cubic-bezier(.4,0,.2,1); }
 
     /* ── EXPERIENCE ── */
     .exp-layout { flex: 1; display: flex; gap: clamp(14px,2vw,28px); min-height: 0; }
@@ -162,7 +164,7 @@
     .hobbies-flavour { font-family: 'Barlow', sans-serif; font-size: clamp(11px,1vw,13px); color: #1a5ce8; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; }
     .hobbies-lead { font-size: clamp(18px,2.2vw,28px); color: #0d1b3e; font-weight: 700; line-height: 1.3; }
     .hobbies-lead span { color: #1a5ce8; }
-    .hobby-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(8px,1.2vh,16px); flex: 1; }
+    .hobby-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: clamp(8px,1.2vh,16px); flex: 1; }
     .hobby-card { border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,100% 85%,90% 100%,0 100%); padding: clamp(12px,1.8vh,22px) clamp(10px,1.2vw,16px); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.25s, background 0.25s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); cursor: default; }
     .hobby-card:hover { border-color: #c5d4f7; background: #edf3ff; }
     .hobby-icon { font-size: clamp(20px,2.2vw,28px); line-height: 1; }
@@ -195,7 +197,6 @@
       body { overflow-x: hidden; overflow-y: auto; height: auto; -webkit-overflow-scrolling: touch; }
       .p5 { height: auto; min-height: 100vh; overflow: visible; }
       .panel-body { overflow: visible; height: auto; flex: none; }
-      .exp-layout { overflow: visible; }
       .top-bar { padding: 20px 20px 0; }
       .main-name { font-size: 36px; }
       .divider { margin: 14px 20px; }
@@ -223,6 +224,9 @@
       .panel-bg-num { display: none; }
       .about-status { margin-top: 16px; }
       .contact-left { flex: none; }
+      .toast { bottom: 16px; right: 16px; min-width: unset; max-width: calc(100vw - 32px); }
+      .sound-btn { top: 10px; right: 10px; }
+      .wipe { display: none; }
     }
   </style>
 </head>
@@ -237,6 +241,28 @@
     <line x1="560" y1="0" x2="700" y2="200" stroke="rgba(26,92,232,0.1)" stroke-width="1"/>
     <line x1="0" y1="460" x2="160" y2="600" stroke="rgba(26,92,232,0.1)" stroke-width="1"/>
   </svg>
+
+  <!-- WIPE -->
+  <div class="wipe" id="wipe"><div class="wipe-slash" id="wipeSlash"></div></div>
+
+  <!-- SOUND TOGGLE -->
+  <div class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Toggle sound">
+    <svg id="soundIcon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 6h3l4-3v10l-4-3H2V6z" fill="#1a5ce8"/>
+      <path id="soundWave1" d="M11 5.5a3 3 0 0 1 0 5" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
+      <path id="soundWave2" d="M12.5 3.5a5.5 5.5 0 0 1 0 9" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
+      <path id="soundMute" d="M11 6l3 4M14 6l-3 4" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round" style="display:none"/>
+    </svg>
+  </div>
+
+  <!-- ACHIEVEMENT TOAST -->
+  <div class="toast" id="toast">
+    <div class="toast-icon">🏆</div>
+    <div class="toast-body">
+      <div class="toast-label">Achievement unlocked</div>
+      <div class="toast-title" id="toastTitle">Full Profile Viewed</div>
+    </div>
+  </div>
 
   <!-- BOOT -->
   <div class="boot-overlay" id="bootOverlay">
@@ -258,7 +284,7 @@
       <div class="main-name">Jorge <span>Baptista</span></div>
       <div class="sub-title">Salesforce Developer</div>
     </div>
-    <div class="jb-mark">
+    <div class="jb-mark" id="jbMark">
       <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
         <polygon class="jb-hex" points="36,4 67,20 67,52 36,68 5,52 5,20"/>
         <text class="jb-text" x="36" y="44" text-anchor="middle">JB</text>
@@ -270,21 +296,11 @@
 
   <div class="menu-area">
     <div class="menu-list" id="menuList">
-      <div class="menu-item active" data-panel="about" onclick="sel(this)">
-        <span class="item-num">01</span><span class="item-label">About</span><div class="item-arrow"></div>
-      </div>
-      <div class="menu-item" data-panel="skills" onclick="sel(this)">
-        <span class="item-num">02</span><span class="item-label">Skills</span><div class="item-arrow"></div>
-      </div>
-      <div class="menu-item" data-panel="experience" onclick="sel(this)">
-        <span class="item-num">03</span><span class="item-label">Experience</span><div class="item-arrow"></div>
-      </div>
-      <div class="menu-item" data-panel="hobbies" onclick="sel(this)">
-        <span class="item-num">04</span><span class="item-label">Hobbies</span><div class="item-arrow"></div>
-      </div>
-      <div class="menu-item" data-panel="contact" onclick="sel(this)">
-        <span class="item-num">05</span><span class="item-label">Contact</span><div class="item-arrow"></div>
-      </div>
+      <div class="menu-item active" data-panel="about" onclick="sel(this)"><span class="item-num">01</span><span class="item-label">About</span><div class="item-arrow"></div></div>
+      <div class="menu-item" data-panel="skills" onclick="sel(this)"><span class="item-num">02</span><span class="item-label">Skills</span><div class="item-arrow"></div></div>
+      <div class="menu-item" data-panel="experience" onclick="sel(this)"><span class="item-num">03</span><span class="item-label">Experience</span><div class="item-arrow"></div></div>
+      <div class="menu-item" data-panel="hobbies" onclick="sel(this)"><span class="item-num">04</span><span class="item-label">Hobbies</span><div class="item-arrow"></div></div>
+      <div class="menu-item" data-panel="contact" onclick="sel(this)"><span class="item-num">05</span><span class="item-label">Contact</span><div class="item-arrow"></div></div>
     </div>
 
     <div class="panel" id="panel">
@@ -292,7 +308,7 @@
 
       <!-- ABOUT -->
       <div class="panel-section visible" id="panel-about">
-        <div class="panel-title">Profile</div>
+        <div class="panel-title" data-title="Profile"></div>
         <div class="panel-body">
           <div class="reveal-up about-flavour">— Character bio</div>
           <div class="reveal-up about-lead">The developer who ships clean.<br><span>Every. Single. Time.</span></div>
@@ -300,10 +316,7 @@
             <div class="about-col-main">
               <div class="about-body">Senior Salesforce Consultant with <strong>10+ years of IT experience</strong> and 8 years specialising in Salesforce. Expert in Release Management and large-scale deployments across retail, pharma, municipal, and aviation.</div>
               <div class="about-body">Known for delivering <strong>zero-defect releases</strong> and mentoring teams to raise technical capabilities. Holder of <strong>6 Salesforce certifications</strong> spanning development, architecture, and AI.</div>
-              <div class="about-status">
-                <div class="status-dot"></div>
-                <div class="status-text">Currently at KCSIT</div>
-              </div>
+              <div class="about-status"><div class="status-dot"></div><div class="status-text">Currently at KCSIT</div></div>
               <div class="about-tags">
                 <div class="about-tag">Release Management</div>
                 <div class="about-tag">DevOps</div>
@@ -326,45 +339,45 @@
 
       <!-- SKILLS -->
       <div class="panel-section" id="panel-skills">
-        <div class="panel-title">Tech expertise</div>
+        <div class="panel-title" data-title="Tech Expertise"></div>
         <div class="panel-body">
           <div class="skills-layout">
             <div class="skill-block">
               <div class="skill-section-title reveal-up">Salesforce stack</div>
               <div class="skill-grid">
-                <div class="skill-item reveal-up"><div class="skill-name">Apex</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="95"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">LWC</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="92"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">SOQL / SOSL</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="93"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">Aura / Visualforce</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="85"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Apex</div><div class="skill-lvl">LVL 95</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="95"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">LWC</div><div class="skill-lvl">LVL 92</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="92"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">SOQL / SOSL</div><div class="skill-lvl">LVL 93</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="93"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Aura / Visualforce</div><div class="skill-lvl">LVL 85</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="85"></div></div></div>
               </div>
             </div>
             <div class="skill-block">
               <div class="skill-section-title reveal-up">DevOps & tools</div>
               <div class="skill-grid">
-                <div class="skill-item reveal-up"><div class="skill-name">Copado</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="90"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">Azure DevOps</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="82"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">GitHub / Bitbucket</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="88"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">Gearset</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="80"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Copado</div><div class="skill-lvl">LVL 90</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="90"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Azure DevOps</div><div class="skill-lvl">LVL 82</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="82"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">GitHub / Bitbucket</div><div class="skill-lvl">LVL 88</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="88"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Gearset</div><div class="skill-lvl">LVL 80</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="80"></div></div></div>
               </div>
             </div>
             <div class="skill-block">
               <div class="skill-section-title reveal-up">Clouds & products</div>
               <div class="skill-grid">
-                <div class="skill-item reveal-up"><div class="skill-name">Sales Cloud</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="92"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">Service Cloud</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="90"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">Experience Cloud</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="88"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">Field Service</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="82"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">OmniStudio</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="80"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">CPQ</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="78"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Sales Cloud</div><div class="skill-lvl">LVL 92</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="92"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Service Cloud</div><div class="skill-lvl">LVL 90</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="90"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Experience Cloud</div><div class="skill-lvl">LVL 88</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="88"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Field Service</div><div class="skill-lvl">LVL 82</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="82"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">OmniStudio</div><div class="skill-lvl">LVL 80</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="80"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">CPQ</div><div class="skill-lvl">LVL 78</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="78"></div></div></div>
               </div>
             </div>
             <div class="skill-block">
               <div class="skill-section-title reveal-up">AI & emerging</div>
               <div class="skill-grid">
-                <div class="skill-item reveal-up"><div class="skill-name">Salesforce Einstein</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="85"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">Agentforce</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="80"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">Prompt Engineering</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="88"></div></div></div>
-                <div class="skill-item reveal-up"><div class="skill-name">AI Flows & Automation</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="82"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Salesforce Einstein</div><div class="skill-lvl">LVL 85</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="85"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Agentforce</div><div class="skill-lvl">LVL 80</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="80"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">Prompt Engineering</div><div class="skill-lvl">LVL 88</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="88"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-header"><div class="skill-name">AI Flows & Automation</div><div class="skill-lvl">LVL 82</div></div><div class="xp-bar-bg"><div class="xp-bar-fill" data-w="82"></div></div></div>
               </div>
             </div>
           </div>
@@ -373,31 +386,15 @@
 
       <!-- EXPERIENCE -->
       <div class="panel-section" id="panel-experience">
-        <div class="panel-title">Career & certifications</div>
+        <div class="panel-title" data-title="Career & Certifications"></div>
         <div class="panel-body">
           <div class="exp-layout">
             <div class="exp-col">
               <div class="exp-col-title reveal-up">Career</div>
-              <div class="exp-row reveal">
-                <div class="exp-role">Salesforce Developer</div>
-                <div class="exp-company">KCSIT · Portugal</div>
-                <div class="exp-period">Nov 2024 – Present</div>
-              </div>
-              <div class="exp-row reveal">
-                <div class="exp-role">Salesforce Release Manager</div>
-                <div class="exp-company">asUgo · Portugal</div>
-                <div class="exp-period">Oct 2021 – May 2024</div>
-              </div>
-              <div class="exp-row reveal">
-                <div class="exp-role">Salesforce Consultant</div>
-                <div class="exp-company">Merkle · Portugal</div>
-                <div class="exp-period">Jan 2019 – Oct 2021</div>
-              </div>
-              <div class="exp-row reveal">
-                <div class="exp-role">Junior SF Consultant</div>
-                <div class="exp-company">Stepahead · Portugal</div>
-                <div class="exp-period">Nov 2017 – Jan 2019</div>
-              </div>
+              <div class="exp-row reveal"><div class="exp-role">Salesforce Developer</div><div class="exp-company">KCSIT · Portugal</div><div class="exp-period">Nov 2024 – Present</div></div>
+              <div class="exp-row reveal"><div class="exp-role">Salesforce Release Manager</div><div class="exp-company">asUgo · Portugal</div><div class="exp-period">Oct 2021 – May 2024</div></div>
+              <div class="exp-row reveal"><div class="exp-role">Salesforce Consultant</div><div class="exp-company">Merkle · Portugal</div><div class="exp-period">Jan 2019 – Oct 2021</div></div>
+              <div class="exp-row reveal"><div class="exp-role">Junior SF Consultant</div><div class="exp-company">Stepahead · Portugal</div><div class="exp-period">Nov 2017 – Jan 2019</div></div>
             </div>
             <div class="exp-col">
               <div class="exp-col-title reveal-up">Certifications</div>
@@ -414,42 +411,18 @@
 
       <!-- HOBBIES -->
       <div class="panel-section" id="panel-hobbies">
-        <div class="panel-title">Interests</div>
+        <div class="panel-title" data-title="Interests"></div>
         <div class="panel-body">
           <div class="hobbies-layout">
             <div class="reveal-up hobbies-flavour">— Off the clock</div>
             <div class="reveal-up hobbies-lead">Not just a developer.<br><span>A person with good taste.</span></div>
             <div class="hobby-grid">
-              <div class="hobby-card reveal-up">
-                <div class="hobby-icon">🎮</div>
-                <div class="hobby-name">Videogames</div>
-                <div class="hobby-desc">From JRPGs to strategy — a lifelong player.</div>
-              </div>
-              <div class="hobby-card reveal-up">
-                <div class="hobby-icon">📺</div>
-                <div class="hobby-name">TV Shows</div>
-                <div class="hobby-desc">Binge-watching is a serious discipline.</div>
-              </div>
-              <div class="hobby-card reveal-up">
-                <div class="hobby-icon">⛩️</div>
-                <div class="hobby-name">Anime & Japan</div>
-                <div class="hobby-desc">Deep appreciation for all things Japanese culture.</div>
-              </div>
-              <div class="hobby-card reveal-up">
-                <div class="hobby-icon">🔭</div>
-                <div class="hobby-name">Cosmology</div>
-                <div class="hobby-desc">The universe is the biggest open-world map.</div>
-              </div>
-              <div class="hobby-card reveal-up">
-                <div class="hobby-icon">📚</div>
-                <div class="hobby-name">Reading</div>
-                <div class="hobby-desc">Always a book on the go — fiction to philosophy.</div>
-              </div>
-              <div class="hobby-card reveal-up">
-                <div class="hobby-icon">🍳</div>
-                <div class="hobby-name">Cooking</div>
-                <div class="hobby-desc">Recipes are just code that feeds people.</div>
-              </div>
+              <div class="hobby-card reveal-up"><div class="hobby-icon">🎮</div><div class="hobby-name">Videogames</div><div class="hobby-desc">From JRPGs to strategy — a lifelong player.</div></div>
+              <div class="hobby-card reveal-up"><div class="hobby-icon">📺</div><div class="hobby-name">TV Shows</div><div class="hobby-desc">Binge-watching is a serious discipline.</div></div>
+              <div class="hobby-card reveal-up"><div class="hobby-icon">⛩️</div><div class="hobby-name">Anime & Japan</div><div class="hobby-desc">Deep appreciation for all things Japanese culture.</div></div>
+              <div class="hobby-card reveal-up"><div class="hobby-icon">🔭</div><div class="hobby-name">Cosmology</div><div class="hobby-desc">The universe is the biggest open-world map.</div></div>
+              <div class="hobby-card reveal-up"><div class="hobby-icon">📚</div><div class="hobby-name">Reading</div><div class="hobby-desc">Always a book on the go — fiction to philosophy.</div></div>
+              <div class="hobby-card reveal-up"><div class="hobby-icon">🍳</div><div class="hobby-name">Cooking</div><div class="hobby-desc">Recipes are just code that feeds people.</div></div>
             </div>
           </div>
         </div>
@@ -457,63 +430,153 @@
 
       <!-- CONTACT -->
       <div class="panel-section" id="panel-contact">
-        <div class="panel-title">Reach out</div>
+        <div class="panel-title" data-title="Reach Out"></div>
         <div class="panel-body">
           <div class="contact-layout">
             <div class="contact-left reveal-up">
               <div class="contact-lead">Let's build something<br><span>great together.</span></div>
               <div class="contact-sub">Whether it's a complex Salesforce project, a release strategy challenge, or just a good conversation about tech — I'm always up for it.</div>
-              <div class="about-status" style="margin-top: auto;">
-                <div class="status-dot"></div>
-                <div class="status-text">Currently at KCSIT</div>
-              </div>
+              <div class="about-status" style="margin-top:auto;"><div class="status-dot"></div><div class="status-text">Currently at KCSIT</div></div>
             </div>
             <div class="contact-list">
-              <a class="contact-row reveal" href="mailto:jorge.13baptista@gmail.com">
-                <div class="contact-type">Email</div>
-                <div class="contact-val">jorge.13baptista@gmail.com</div>
-              </a>
-              <a class="contact-row reveal" href="https://linkedin.com/in/jorge-b-5a188679" target="_blank" rel="noopener">
-                <div class="contact-type">LinkedIn</div>
-                <div class="contact-val">linkedin.com/in/jorge-b-5a188679</div>
-              </a>
-              <div class="contact-row reveal">
-                <div class="contact-type">Location</div>
-                <div class="contact-val">Portugal</div>
-              </div>
-              <div class="contact-row reveal">
-                <div class="contact-type">Education</div>
-                <div class="contact-val">BSc Computer Science — Lusófona, 2013</div>
-              </div>
+              <a class="contact-row reveal" href="https://linkedin.com/in/jorge-b-5a188679" target="_blank" rel="noopener"><div class="contact-type">LinkedIn</div><div class="contact-val">linkedin.com/in/jorge-b-5a188679</div></a>
+              <div class="contact-row reveal"><div class="contact-type">Location</div><div class="contact-val">Portugal</div></div>
+              <div class="contact-row reveal"><div class="contact-type">Education</div><div class="contact-val">BSc Computer Science — Lusófona, 2013</div></div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
   <div class="bottom-bar" id="bottomBar">
     <div class="kb-hints">
-      <div class="kb-hint">
-        <div class="kb-key">↑ ↓</div>
-        <div class="kb-desc">navigate</div>
-      </div>
+      <div class="kb-hint"><div class="kb-key">↑ ↓</div><div class="kb-desc">navigate</div></div>
     </div>
     <div class="corner-mark">JB · 2026</div>
   </div>
 </div>
 
 <script>
-  const ease = (el, props, dur, delay) => {
-    el.style.transition = `opacity ${dur}ms cubic-bezier(.4,0,.2,1) ${delay}ms, transform ${dur}ms cubic-bezier(.34,1.28,.64,1) ${delay}ms`;
-    requestAnimationFrame(() => requestAnimationFrame(() => Object.assign(el.style, props)));
+  /* ── AUDIO ── */
+  let soundOn = true;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let actx = null;
+  function getCtx() { if (!actx) actx = new AudioCtx(); return actx; }
+
+  function playBlip(freq = 520, dur = 0.06, vol = 0.08) {
+    if (!soundOn) return;
+    try {
+      const ctx = getCtx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'square';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(vol, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      o.start(); o.stop(ctx.currentTime + dur);
+    } catch(e) {}
+  }
+
+  function playNav()   { playBlip(440, 0.05, 0.07); }
+  function playSelect(){ playBlip(660, 0.08, 0.09); setTimeout(() => playBlip(880, 0.06, 0.07), 70); }
+  function playBoot()  { [220,330,440,660].forEach((f,i) => setTimeout(() => playBlip(f, 0.1, 0.1), i*80)); }
+  function playToast() { playBlip(880, 0.05, 0.08); setTimeout(() => playBlip(1100, 0.1, 0.08), 60); }
+
+  function toggleSound() {
+    soundOn = !soundOn;
+    document.getElementById('soundWave1').style.display = soundOn ? '' : 'none';
+    document.getElementById('soundWave2').style.display = soundOn ? '' : 'none';
+    document.getElementById('soundMute').style.display = soundOn ? 'none' : '';
+    if (soundOn) playSelect();
+  }
+
+  /* ── TYPEWRITER ── */
+  function typeTitle(el, text, cb) {
+    el.textContent = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'title-cursor';
+    el.appendChild(cursor);
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        el.insertBefore(document.createTextNode(text[i]), cursor);
+        i++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => { cursor.remove(); if (cb) cb(); }, 400);
+      }
+    }, 38);
+  }
+
+  /* ── WIPE TRANSITION ── */
+  function wipeTransition(cb) {
+    const wipe = document.getElementById('wipe');
+    wipe.classList.remove('out');
+    wipe.classList.add('go');
+    setTimeout(() => {
+      cb();
+      wipe.classList.remove('go');
+      wipe.classList.add('out');
+      setTimeout(() => { wipe.classList.remove('out'); }, 300);
+    }, 240);
+  }
+
+  /* ── ACHIEVEMENT ── */
+  const visited = new Set();
+  const achievements = {
+    skills:     'Skills Inspected',
+    experience: 'Career Reviewed',
+    hobbies:    'True Self Revealed',
+    contact:    'Ready to Connect',
+    all:        'Full Profile Viewed'
   };
+  let toastTimer = null;
 
-  const panels = ['about', 'skills', 'experience', 'hobbies', 'contact'];
-  const panelNums = { about: '01', skills: '02', experience: '03', hobbies: '04', contact: '05' };
-  let currentIndex = 0;
+  function showToast(title) {
+    playToast();
+    const toast = document.getElementById('toast');
+    document.getElementById('toastTitle').textContent = title;
+    toast.classList.remove('hide');
+    toast.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('show');
+      toast.classList.add('hide');
+    }, 3200);
+  }
 
+  function checkAchievement(panelId) {
+    if (panelId === 'about') return;
+    if (!visited.has(panelId)) {
+      visited.add(panelId);
+      setTimeout(() => {
+        if (visited.size === 4) showToast(achievements.all);
+        else if (achievements[panelId]) showToast(achievements[panelId]);
+      }, 900);
+    }
+  }
+
+  /* ── IDLE ANIMATION ── */
+  let idleTimer = null;
+  let idleActive = false;
+  const jbHex = document.querySelector('.jb-hex');
+
+  function startIdle() {
+    if (idleActive) return;
+    idleActive = true;
+    jbHex.style.animation = 'idlePulse 2s ease-in-out infinite';
+  }
+  function resetIdle() {
+    idleActive = false;
+    jbHex.style.animation = '';
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(startIdle, 9000);
+  }
+  ['mousemove','keydown','click','touchstart'].forEach(e => document.addEventListener(e, resetIdle, { passive: true }));
+
+  /* ── REVEAL ── */
   function revealPanel(panelId) {
     const section = document.getElementById('panel-' + panelId);
     if (!section) return;
@@ -523,13 +586,25 @@
       items.forEach((el, i) => {
         setTimeout(() => {
           el.classList.add('in');
-          const bar = el.querySelector('.skill-bar-fill');
-          if (bar) setTimeout(() => { bar.style.width = bar.dataset.w + '%'; }, 120);
-        }, 80 + i * 150);
+          const bar = el.querySelector('.xp-bar-fill');
+          if (bar) setTimeout(() => { bar.style.width = bar.dataset.w + '%'; }, 150);
+        }, 80 + i * 140);
       });
-      setTimeout(() => { items.forEach(el => el.classList.add('in')); }, 80 + items.length * 150 + 800);
+      setTimeout(() => { items.forEach(el => el.classList.add('in')); }, 80 + items.length * 140 + 800);
     });
   }
+
+  /* ── EASE HELPER ── */
+  const ease = (el, props, dur, delay) => {
+    el.style.transition = `opacity ${dur}ms cubic-bezier(.4,0,.2,1) ${delay}ms, transform ${dur}ms cubic-bezier(.34,1.28,.64,1) ${delay}ms`;
+    requestAnimationFrame(() => requestAnimationFrame(() => Object.assign(el.style, props)));
+  };
+
+  /* ── BOOT ── */
+  const panels = ['about','skills','experience','hobbies','contact'];
+  const panelNums = { about:'01', skills:'02', experience:'03', hobbies:'04', contact:'05' };
+  let currentIndex = 0;
+  let booted = false;
 
   function runBoot() {
     const overlay   = document.getElementById('bootOverlay');
@@ -538,14 +613,18 @@
     const menuItems = document.querySelectorAll('.menu-item');
     const panel     = document.getElementById('panel');
     const bottom    = document.getElementById('bottomBar');
+    const soundBtn  = document.getElementById('soundBtn');
     const scan      = document.getElementById('scanline');
 
     const go = () => {
+      if (booted) return;
+      booted = true;
+      playBoot();
       overlay.style.transition = 'opacity 0.6s ease';
       overlay.style.opacity = '0';
       setTimeout(() => { overlay.style.display = 'none'; }, 600);
       scan.style.animation = 'scan 0.55s linear forwards';
-      setTimeout(() => { ease(topBar, { opacity: '1', transform: 'translateY(0)' }, 700, 0); }, 100);
+      setTimeout(() => { ease(topBar, { opacity:'1', transform:'translateY(0)' }, 700, 0); }, 100);
       setTimeout(() => {
         divider.style.opacity = '1';
         divider.style.transition = 'transform 0.7s cubic-bezier(.4,0,.2,1)';
@@ -558,40 +637,49 @@
         }, 750 + i * 110);
       });
       setTimeout(() => {
-        ease(panel, { opacity: '1', transform: 'translateY(0)' }, 700, 0);
-        setTimeout(() => revealPanel('about'), 450);
+        ease(panel, { opacity:'1', transform:'translateY(0)' }, 700, 0);
+        const titleEl = document.querySelector('#panel-about .panel-title');
+        typeTitle(titleEl, 'Profile', () => revealPanel('about'));
       }, 1200);
-      setTimeout(() => { ease(bottom, { opacity: '1', transform: 'translateY(0)' }, 600, 0); }, 1600);
+      setTimeout(() => {
+        ease(bottom, { opacity:'1', transform:'translateY(0)' }, 600, 0);
+        soundBtn.style.transition = 'opacity 0.4s ease';
+        soundBtn.style.opacity = '1';
+      }, 1600);
+      setTimeout(() => resetIdle(), 2000);
     };
 
     document.addEventListener('keydown', go, { once: true });
-    setTimeout(go, 2600);
+    setTimeout(go, 2700);
   }
 
+  /* ── SELECT ── */
   function sel(el) {
     const p = el.dataset.panel;
+    if (panels[currentIndex] === p) return;
+    playSelect();
     currentIndex = panels.indexOf(p);
-    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-    el.classList.add('active');
-    document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('visible'));
-    document.getElementById('panel-' + p).classList.add('visible');
-    document.getElementById('pNum').textContent = panelNums[p];
-    const panel = document.getElementById('panel');
-    panel.style.transition = 'none';
-    panel.style.transform = 'translateY(12px)';
-    panel.style.opacity = '0.4';
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      panel.style.transition = 'opacity 0.4s ease, transform 0.45s cubic-bezier(.34,1.3,.64,1)';
-      panel.style.transform = 'translateY(0)';
-      panel.style.opacity = '1';
-    }));
-    revealPanel(p);
+    checkAchievement(p);
+
+    wipeTransition(() => {
+      document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('visible'));
+      document.getElementById('panel-' + p).classList.add('visible');
+      document.getElementById('pNum').textContent = panelNums[p];
+
+      const titleEl = document.querySelector('#panel-' + p + ' .panel-title');
+      const titleText = el.querySelector('.item-label').textContent;
+      typeTitle(titleEl, titleText, () => revealPanel(p));
+    });
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter') {
+    if (!booted) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      playNav();
       if (e.key === 'ArrowDown') currentIndex = Math.min(currentIndex + 1, panels.length - 1);
-      if (e.key === 'ArrowUp') currentIndex = Math.max(currentIndex - 1, 0);
+      if (e.key === 'ArrowUp')   currentIndex = Math.max(currentIndex - 1, 0);
       const menuItem = document.querySelector(`.menu-item[data-panel="${panels[currentIndex]}"]`);
       if (menuItem) sel(menuItem);
     }
