@@ -43,19 +43,7 @@
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 28px;
     }
-    .boot-monogram {
-      width: 72px; height: 72px;
-      border: 2px solid #1a5ce8;
-      display: flex; align-items: center; justify-content: center;
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      transform: scale(0);
-      animation: monoPop 0.5s cubic-bezier(.34,1.56,.64,1) 0.3s forwards;
-      background: #f0f5ff;
-    }
-    .boot-monogram span {
-      font-size: 22px; font-weight: 700; color: #1a5ce8; letter-spacing: 1px;
-      transform: scale(1);
-    }
+    .boot-monogram { transform: scale(0); animation: monoPop 0.5s cubic-bezier(.34,1.56,.64,1) 0.3s forwards; }
     .boot-label { font-size: 11px; color: #1a5ce8; letter-spacing: 6px; text-transform: uppercase; font-weight: 700; opacity: 0; animation: fadeIn 0.4s ease 0.85s forwards; }
     .boot-bar-wrap { width: 200px; height: 2px; background: #e2eaf8; overflow: hidden; opacity: 0; animation: fadeIn 0.3s ease 1s forwards; }
     .boot-bar { height: 100%; width: 0; background: #1a5ce8; animation: barFill 0.9s cubic-bezier(.4,0,.2,1) 1.1s forwards; }
@@ -81,17 +69,12 @@
     .main-name span { color: #1a5ce8; }
     .sub-title { font-size: clamp(10px, 1vw, 13px); color: #7a90b8; letter-spacing: 4px; text-transform: uppercase; margin-top: 7px; font-family: 'Barlow', sans-serif; font-weight: 400; }
 
-    .jb-mark {
-      width: clamp(52px,6vw,72px); height: clamp(52px,6vw,72px);
-      border: 2px solid #1a5ce8;
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      display: flex; align-items: center; justify-content: center;
-      background: #f0f5ff; flex-shrink: 0;
-      transition: background 0.3s;
-    }
-    .jb-mark:hover { background: #1a5ce8; }
-    .jb-mark:hover span { color: #fff; }
-    .jb-mark span { font-size: clamp(16px,2vw,22px); font-weight: 700; color: #1a5ce8; letter-spacing: 1px; transition: color 0.3s; }
+    .jb-mark { flex-shrink: 0; cursor: default; }
+    .jb-mark svg { display: block; }
+    .jb-hex { fill: #f0f5ff; stroke: #1a5ce8; stroke-width: 2; transition: fill 0.3s; }
+    .jb-mark:hover .jb-hex { fill: #1a5ce8; }
+    .jb-text { font-size: 22px; font-weight: 700; fill: #1a5ce8; font-family: 'Barlow Condensed', Arial, sans-serif; letter-spacing: 1px; transition: fill 0.3s; }
+    .jb-mark:hover .jb-text { fill: #fff; }
 
     .divider { flex-shrink: 0; height: 2px; margin: 2vh 4vw; background: #1a5ce8; clip-path: polygon(0 0,100% 0,98.5% 100%,0 100%); position: relative; z-index: 10; transform: scaleX(0); transform-origin: left; opacity: 0; }
 
@@ -240,7 +223,12 @@
 
   <!-- BOOT -->
   <div class="boot-overlay" id="bootOverlay">
-    <div class="boot-monogram"><span>JB</span></div>
+    <div class="boot-monogram">
+      <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="36,4 67,20 67,52 36,68 5,52 5,20" fill="#f0f5ff" stroke="#1a5ce8" stroke-width="2"/>
+        <text x="36" y="44" text-anchor="middle" font-size="22" font-weight="700" fill="#1a5ce8" font-family="Barlow Condensed, Arial, sans-serif" letter-spacing="1">JB</text>
+      </svg>
+    </div>
     <div class="boot-label">Loading profile</div>
     <div class="boot-bar-wrap"><div class="boot-bar"></div></div>
     <div class="boot-ready">Press any key to continue</div>
@@ -253,7 +241,12 @@
       <div class="main-name">Jorge <span>Baptista</span></div>
       <div class="sub-title">Zero-defect releases. Every time.</div>
     </div>
-    <div class="jb-mark"><span>JB</span></div>
+    <div class="jb-mark">
+      <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+        <polygon class="jb-hex" points="36,4 67,20 67,52 36,68 5,52 5,20"/>
+        <text class="jb-text" x="36" y="44" text-anchor="middle">JB</text>
+      </svg>
+    </div>
   </div>
 
   <div class="divider" id="divider"></div>
