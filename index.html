@@ -64,7 +64,7 @@
       opacity: 0; transform: translateY(-18px);
     }
     .top-left { display: flex; flex-direction: column; }
-    .name-tag { display: inline-block; background: #1a5ce8; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 3px 14px 3px 10px; clip-path: polygon(0 0,100% 0,94% 100%,0 100%); margin-bottom: 8px; align-self: flex-start; }
+    .name-tag { display: inline-block; background: #1a5ce8; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 3px 28px 3px 10px; clip-path: polygon(0 0,100% 0,97% 100%,0 100%); margin-bottom: 8px; align-self: flex-start; }
     .main-name { font-size: clamp(30px, 4.8vw, 58px); font-weight: 700; line-height: 1; text-transform: uppercase; letter-spacing: 3px; color: #0d1b3e; }
     .main-name span { color: #1a5ce8; }
     .sub-title { font-size: clamp(10px, 1vw, 13px); color: #7a90b8; letter-spacing: 4px; text-transform: uppercase; margin-top: 7px; font-family: 'Barlow', sans-serif; font-weight: 400; }
@@ -106,8 +106,10 @@
     .panel-body::-webkit-scrollbar-thumb { background: #d4e0f7; border-radius: 2px; }
 
     /* ── REVEAL ── */
-    .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.75s cubic-bezier(.4,0,.2,1), transform 0.75s cubic-bezier(.25,1,.5,1); }
-    .reveal.in { opacity: 1 !important; transform: translateY(0) !important; }
+    .reveal { opacity: 0; transform: translateX(-18px); transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); }
+    .reveal.in { opacity: 1 !important; transform: translateX(0) !important; }
+    .reveal-up { opacity: 0; transform: translateY(20px); transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); }
+    .reveal-up.in { opacity: 1 !important; transform: translateY(0) !important; }
 
     /* ── ABOUT ── */
     .about-flavour { font-family: 'Barlow', sans-serif; font-size: clamp(11px,1vw,13px); color: #1a5ce8; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; margin-bottom: clamp(8px,1.2vh,14px); }
@@ -145,12 +147,12 @@
     .exp-layout { flex: 1; display: flex; gap: clamp(14px,2vw,28px); min-height: 0; }
     .exp-col { flex: 1; display: flex; flex-direction: column; gap: clamp(7px,1vh,12px); min-height: 0; }
     .exp-col-title { font-size: clamp(9px,0.8vw,11px); color: #a0b2d0; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; flex-shrink: 0; margin-bottom: 2px; }
-    .exp-row { flex: 1; padding: clamp(10px,1.5vh,18px) clamp(12px,1.2vw,18px); border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,98% 100%,0 100%); display: flex; flex-direction: column; justify-content: center; transition: border-color 0.2s, background 0.2s; }
+    .exp-row { flex: 1; padding: clamp(10px,1.5vh,18px) clamp(12px,1.2vw,18px); border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,98% 100%,0 100%); display: flex; flex-direction: column; justify-content: center; transition: border-color 0.2s, background 0.2s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); }
     .exp-row:hover { border-color: #c5d4f7; background: #edf3ff; }
     .exp-role { font-size: clamp(13px,1.3vw,17px); font-weight: 700; color: #0d1b3e; text-transform: uppercase; letter-spacing: 1px; }
     .exp-company { font-size: clamp(11px,1vw,13px); color: #1a5ce8; letter-spacing: 1.5px; margin-top: 4px; font-family: 'Barlow', sans-serif; }
     .exp-period { font-size: clamp(10px,0.85vw,12px); color: #a0b2d0; letter-spacing: 1px; margin-top: 3px; font-family: 'Barlow', sans-serif; }
-    .cert-row { flex: 1; display: flex; align-items: center; gap: 10px; padding: clamp(8px,1.1vh,14px) 14px; border-left: 2px solid #e2eaf8; transition: border-color 0.25s; background: #f8fbff; }
+    .cert-row { flex: 1; display: flex; align-items: center; gap: 10px; padding: clamp(8px,1.1vh,14px) 14px; border-left: 2px solid #e2eaf8; background: #f8fbff; transition: border-color 0.25s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); }
     .cert-row:hover { border-left-color: #1a5ce8; }
     .cert-dot { width: 6px; height: 6px; background: #1a5ce8; flex-shrink: 0; transform: rotate(45deg); }
     .cert-text { font-size: clamp(10px,0.9vw,13px); color: #2c3e6b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.3; }
@@ -161,7 +163,7 @@
     .hobbies-lead { font-size: clamp(18px,2.2vw,28px); color: #0d1b3e; font-weight: 700; line-height: 1.3; }
     .hobbies-lead span { color: #1a5ce8; }
     .hobby-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(8px,1.2vh,16px); flex: 1; }
-    .hobby-card { border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,100% 85%,90% 100%,0 100%); padding: clamp(12px,1.8vh,22px) clamp(10px,1.2vw,16px); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.25s, background 0.25s; cursor: default; }
+    .hobby-card { border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,100% 85%,90% 100%,0 100%); padding: clamp(12px,1.8vh,22px) clamp(10px,1.2vw,16px); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.25s, background 0.25s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); cursor: default; }
     .hobby-card:hover { border-color: #c5d4f7; background: #edf3ff; }
     .hobby-icon { font-size: clamp(20px,2.2vw,28px); line-height: 1; }
     .hobby-name { font-size: clamp(13px,1.2vw,16px); font-weight: 700; color: #0d1b3e; text-transform: uppercase; letter-spacing: 1px; }
@@ -174,7 +176,7 @@
     .contact-lead span { color: #1a5ce8; }
     .contact-sub { font-family: 'Barlow', sans-serif; font-size: clamp(13px,1.15vw,16px); color: #7a90b8; line-height: 1.7; font-weight: 400; }
     .contact-list { display: flex; flex-direction: column; gap: clamp(8px,1.2vh,14px); flex: 1; }
-    .contact-row { flex: 1; display: flex; align-items: center; gap: 18px; padding: clamp(10px,1.6vh,20px) clamp(14px,1.5vw,22px); border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,98% 100%,0 100%); cursor: pointer; transition: background 0.25s, border-color 0.25s; text-decoration: none; max-height: 80px; }
+    .contact-row { flex: 1; display: flex; align-items: center; gap: 18px; padding: clamp(10px,1.6vh,20px) clamp(14px,1.5vw,22px); border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,98% 100%,0 100%); cursor: pointer; transition: background 0.25s, border-color 0.25s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); text-decoration: none; max-height: 80px; }
     .contact-row:hover { background: #edf3ff; border-color: #c5d4f7; }
     .contact-type { font-size: clamp(9px,0.8vw,11px); color: #1a5ce8; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; min-width: 80px; }
     .contact-val { font-family: 'Barlow', sans-serif; font-size: clamp(13px,1.2vw,16px); color: #4a5a7a; letter-spacing: 0.3px; font-weight: 400; }
@@ -239,7 +241,7 @@
     <div class="top-left">
       <div class="name-tag">Salesforce Release Manager · Developer · 6x Certified</div>
       <div class="main-name">Jorge <span>Baptista</span></div>
-      <div class="sub-title">Zero-defect releases. Every time.</div>
+      <div class="sub-title">Salesforce Developer</div>
     </div>
     <div class="jb-mark">
       <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
@@ -277,9 +279,9 @@
       <div class="panel-section visible" id="panel-about">
         <div class="panel-title">Profile</div>
         <div class="panel-body">
-          <div class="reveal about-flavour">— Character bio</div>
-          <div class="reveal about-lead">The developer who ships clean.<br><span>Every. Single. Time.</span></div>
-          <div class="about-cols reveal">
+          <div class="reveal-up about-flavour">— Character bio</div>
+          <div class="reveal-up about-lead">The developer who ships clean.<br><span>Every. Single. Time.</span></div>
+          <div class="about-cols reveal-up">
             <div class="about-col-main">
               <div class="about-body">Senior Salesforce Consultant with <strong>10+ years of IT experience</strong> and 8 years specialising in Salesforce. Expert in Release Management and large-scale deployments across retail, pharma, municipal, and aviation.</div>
               <div class="about-body">Known for delivering <strong>zero-defect releases</strong> and mentoring teams to raise technical capabilities. Holder of <strong>6 Salesforce certifications</strong> spanning development, architecture, and AI.</div>
@@ -312,35 +314,42 @@
         <div class="panel-title">Tech expertise</div>
         <div class="panel-body">
           <div class="skills-layout">
-            <div class="reveal skill-block">
-              <div class="skill-section-title">Salesforce stack</div>
+            <div class="skill-block">
+              <div class="skill-section-title reveal-up">Salesforce stack</div>
               <div class="skill-grid">
-                <div class="skill-item"><div class="skill-name">Apex</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="95"></div></div></div>
-                <div class="skill-item"><div class="skill-name">LWC</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="92"></div></div></div>
-                <div class="skill-item"><div class="skill-name">SOQL / SOSL</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="93"></div></div></div>
-                <div class="skill-item"><div class="skill-name">Aura / Visualforce</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="85"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Apex</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="95"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">LWC</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="92"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">SOQL / SOSL</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="93"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Aura / Visualforce</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="85"></div></div></div>
               </div>
             </div>
-            <div class="reveal skill-block">
-              <div class="skill-section-title">DevOps & tools</div>
+            <div class="skill-block">
+              <div class="skill-section-title reveal-up">DevOps & tools</div>
               <div class="skill-grid">
-                <div class="skill-item"><div class="skill-name">Copado</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="90"></div></div></div>
-                <div class="skill-item"><div class="skill-name">Azure DevOps</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="82"></div></div></div>
-                <div class="skill-item"><div class="skill-name">GitHub / Bitbucket</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="88"></div></div></div>
-                <div class="skill-item"><div class="skill-name">Gearset</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="80"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Copado</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="90"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Azure DevOps</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="82"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">GitHub / Bitbucket</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="88"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Gearset</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="80"></div></div></div>
               </div>
             </div>
-            <div class="reveal skill-block">
-              <div class="skill-section-title">Clouds & products</div>
-              <div class="badge-wrap">
-                <div class="skill-badge">JavaScript</div>
-                <div class="skill-badge">HTML / CSS</div>
-                <div class="skill-badge">OmniStudio</div>
-                <div class="skill-badge">CPQ</div>
-                <div class="skill-badge">Experience Cloud</div>
-                <div class="skill-badge">Field Service</div>
-                <div class="skill-badge">Sales Cloud</div>
-                <div class="skill-badge">Service Cloud</div>
+            <div class="skill-block">
+              <div class="skill-section-title reveal-up">Clouds & products</div>
+              <div class="skill-grid">
+                <div class="skill-item reveal-up"><div class="skill-name">Sales Cloud</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="92"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Service Cloud</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="90"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Experience Cloud</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="88"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Field Service</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="82"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">OmniStudio</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="80"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">CPQ</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="78"></div></div></div>
+              </div>
+            </div>
+            <div class="skill-block">
+              <div class="skill-section-title reveal-up">AI & emerging</div>
+              <div class="skill-grid">
+                <div class="skill-item reveal-up"><div class="skill-name">Salesforce Einstein</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="85"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Agentforce</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="80"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">Prompt Engineering</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="88"></div></div></div>
+                <div class="skill-item reveal-up"><div class="skill-name">AI Flows & Automation</div><div class="skill-bar-bg"><div class="skill-bar-fill" data-w="82"></div></div></div>
               </div>
             </div>
           </div>
@@ -352,37 +361,37 @@
         <div class="panel-title">Career & certifications</div>
         <div class="panel-body">
           <div class="exp-layout">
-            <div class="exp-col reveal">
-              <div class="exp-col-title">Career</div>
-              <div class="exp-row">
+            <div class="exp-col">
+              <div class="exp-col-title reveal-up">Career</div>
+              <div class="exp-row reveal">
                 <div class="exp-role">Salesforce Developer</div>
                 <div class="exp-company">KCSIT · Portugal</div>
                 <div class="exp-period">Nov 2024 – Present</div>
               </div>
-              <div class="exp-row">
+              <div class="exp-row reveal">
                 <div class="exp-role">Salesforce Release Manager</div>
                 <div class="exp-company">asUgo · Portugal</div>
                 <div class="exp-period">Oct 2021 – May 2024</div>
               </div>
-              <div class="exp-row">
+              <div class="exp-row reveal">
                 <div class="exp-role">Salesforce Consultant</div>
                 <div class="exp-company">Merkle · Portugal</div>
                 <div class="exp-period">Jan 2019 – Oct 2021</div>
               </div>
-              <div class="exp-row">
+              <div class="exp-row reveal">
                 <div class="exp-role">Junior SF Consultant</div>
                 <div class="exp-company">Stepahead · Portugal</div>
                 <div class="exp-period">Nov 2017 – Jan 2019</div>
               </div>
             </div>
-            <div class="exp-col reveal">
-              <div class="exp-col-title">Certifications</div>
-              <div class="cert-row"><div class="cert-dot"></div><div class="cert-text">Development Lifecycle & Deployment Architect</div></div>
-              <div class="cert-row"><div class="cert-dot"></div><div class="cert-text">Platform Developer I</div></div>
-              <div class="cert-row"><div class="cert-dot"></div><div class="cert-text">OmniStudio Developer</div></div>
-              <div class="cert-row"><div class="cert-dot"></div><div class="cert-text">AI Associate</div></div>
-              <div class="cert-row"><div class="cert-dot"></div><div class="cert-text">App Builder</div></div>
-              <div class="cert-row"><div class="cert-dot"></div><div class="cert-text">Salesforce Associate</div></div>
+            <div class="exp-col">
+              <div class="exp-col-title reveal-up">Certifications</div>
+              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">Development Lifecycle & Deployment Architect</div></div>
+              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">Platform Developer I</div></div>
+              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">OmniStudio Developer</div></div>
+              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">AI Associate</div></div>
+              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">App Builder</div></div>
+              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">Salesforce Associate</div></div>
             </div>
           </div>
         </div>
@@ -393,35 +402,35 @@
         <div class="panel-title">Interests</div>
         <div class="panel-body">
           <div class="hobbies-layout">
-            <div class="reveal hobbies-flavour">— Off the clock</div>
-            <div class="reveal hobbies-lead">Not just a developer.<br><span>A person with good taste.</span></div>
-            <div class="hobby-grid reveal">
-              <div class="hobby-card">
+            <div class="reveal-up hobbies-flavour">— Off the clock</div>
+            <div class="reveal-up hobbies-lead">Not just a developer.<br><span>A person with good taste.</span></div>
+            <div class="hobby-grid">
+              <div class="hobby-card reveal-up">
                 <div class="hobby-icon">🎮</div>
                 <div class="hobby-name">Videogames</div>
                 <div class="hobby-desc">From JRPGs to strategy — a lifelong player.</div>
               </div>
-              <div class="hobby-card">
+              <div class="hobby-card reveal-up">
                 <div class="hobby-icon">📺</div>
                 <div class="hobby-name">TV Shows</div>
                 <div class="hobby-desc">Binge-watching is a serious discipline.</div>
               </div>
-              <div class="hobby-card">
+              <div class="hobby-card reveal-up">
                 <div class="hobby-icon">⛩️</div>
                 <div class="hobby-name">Anime & Japan</div>
                 <div class="hobby-desc">Deep appreciation for all things Japanese culture.</div>
               </div>
-              <div class="hobby-card">
+              <div class="hobby-card reveal-up">
                 <div class="hobby-icon">🔭</div>
                 <div class="hobby-name">Cosmology</div>
                 <div class="hobby-desc">The universe is the biggest open-world map.</div>
               </div>
-              <div class="hobby-card">
+              <div class="hobby-card reveal-up">
                 <div class="hobby-icon">📚</div>
                 <div class="hobby-name">Reading</div>
                 <div class="hobby-desc">Always a book on the go — fiction to philosophy.</div>
               </div>
-              <div class="hobby-card">
+              <div class="hobby-card reveal-up">
                 <div class="hobby-icon">🍳</div>
                 <div class="hobby-name">Cooking</div>
                 <div class="hobby-desc">Recipes are just code that feeds people.</div>
@@ -436,7 +445,7 @@
         <div class="panel-title">Reach out</div>
         <div class="panel-body">
           <div class="contact-layout">
-            <div class="contact-left reveal">
+            <div class="contact-left reveal-up">
               <div class="contact-lead">Let's build something<br><span>great together.</span></div>
               <div class="contact-sub">Whether it's a complex Salesforce project, a release strategy challenge, or just a good conversation about tech — I'm always up for it.</div>
               <div class="about-status" style="margin-top: auto;">
@@ -444,20 +453,20 @@
                 <div class="status-text">Currently at KCSIT</div>
               </div>
             </div>
-            <div class="contact-list reveal">
-              <a class="contact-row" href="mailto:jorge.13baptista@gmail.com">
+            <div class="contact-list">
+              <a class="contact-row reveal" href="mailto:jorge.13baptista@gmail.com">
                 <div class="contact-type">Email</div>
                 <div class="contact-val">jorge.13baptista@gmail.com</div>
               </a>
-              <a class="contact-row" href="https://linkedin.com/in/jorge-b-5a188679" target="_blank" rel="noopener">
+              <a class="contact-row reveal" href="https://linkedin.com/in/jorge-b-5a188679" target="_blank" rel="noopener">
                 <div class="contact-type">LinkedIn</div>
                 <div class="contact-val">linkedin.com/in/jorge-b-5a188679</div>
               </a>
-              <div class="contact-row">
+              <div class="contact-row reveal">
                 <div class="contact-type">Location</div>
                 <div class="contact-val">Portugal</div>
               </div>
-              <div class="contact-row">
+              <div class="contact-row reveal">
                 <div class="contact-type">Education</div>
                 <div class="contact-val">BSc Computer Science — Lusófona, 2013</div>
               </div>
@@ -475,12 +484,8 @@
         <div class="kb-key">↑ ↓</div>
         <div class="kb-desc">navigate</div>
       </div>
-      <div class="kb-hint">
-        <div class="kb-key">Enter</div>
-        <div class="kb-desc">select</div>
-      </div>
     </div>
-    <div class="corner-mark">JB · 2025</div>
+    <div class="corner-mark">JB · 2026</div>
   </div>
 </div>
 
@@ -497,24 +502,18 @@
   function revealPanel(panelId) {
     const section = document.getElementById('panel-' + panelId);
     if (!section) return;
-    const items = Array.from(section.querySelectorAll('.reveal'));
+    const items = Array.from(section.querySelectorAll('.reveal, .reveal-up'));
     items.forEach(el => { el.classList.remove('in'); });
     requestAnimationFrame(() => {
       items.forEach((el, i) => {
-        setTimeout(() => { el.classList.add('in'); }, 100 + i * 200);
+        setTimeout(() => {
+          el.classList.add('in');
+          const bar = el.querySelector('.skill-bar-fill');
+          if (bar) setTimeout(() => { bar.style.width = bar.dataset.w + '%'; }, 120);
+        }, 80 + i * 150);
       });
-      setTimeout(() => { items.forEach(el => el.classList.add('in')); }, 100 + items.length * 200 + 800);
+      setTimeout(() => { items.forEach(el => el.classList.add('in')); }, 80 + items.length * 150 + 800);
     });
-    if (panelId === 'skills') {
-      setTimeout(() => {
-        section.querySelectorAll('.skill-bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
-      }, 350);
-      setTimeout(() => {
-        section.querySelectorAll('.skill-badge').forEach((b, i) => {
-          setTimeout(() => { b.style.opacity = '1'; b.style.transform = 'translateY(0)'; }, i * 90);
-        });
-      }, 700);
-    }
   }
 
   function runBoot() {
