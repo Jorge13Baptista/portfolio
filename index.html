@@ -198,31 +198,52 @@
 
     /* ── MOBILE ── */
     @media (max-width: 680px) {
-      html { overflow-x: hidden; overflow-y: scroll; height: auto; -webkit-overflow-scrolling: touch; }
-      body { overflow-x: hidden; overflow-y: visible; height: auto; }
-      .p5 { height: auto; min-height: 100vh; overflow: visible; }
-      .menu-area { min-height: 0; overflow: visible; }
-      .panel-body { overflow: visible; height: auto; flex: none; max-height: none; }
-      .panel { overflow: visible; height: auto; flex: none; clip-path: none; border-radius: 0; margin-bottom: 24px; }
-      .panel-section { flex: none; height: auto; overflow: visible; min-height: 0; }
-      .panel-bg-num { display: none; }
-      .skills-layout, .exp-layout, .hobbies-layout, .contact-layout { overflow: visible; height: auto; }
-      .exp-col, .contact-left, .contact-list { overflow: visible; height: auto; flex: none; }
+      html, body {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        height: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+      /* Kill every possible nested scroll container */
+      .p5, .menu-area, .panel, .panel-section, .panel-body,
+      .skills-layout, .skill-block,
+      .exp-layout, .exp-col,
+      .hobbies-layout, .hobby-grid,
+      .contact-layout, .contact-left, .contact-list,
+      .about-cols, .about-col-main {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        flex: none !important;
+        min-height: 0 !important;
+      }
+      .p5 { min-height: 100vh; }
+      .panel { clip-path: none; border-radius: 0; margin-bottom: 24px; }
+      .panel-section { display: none; }
+      .panel-section.visible { display: block; }
+      .exp-row, .cert-row, .contact-row { flex: none; max-height: none; }
+      .hobby-card { flex: none; }
       .exp-layout { flex-direction: column; }
       .contact-layout { flex-direction: column; }
-      .exp-row, .cert-row, .contact-row { flex: none; max-height: none; }
-      .hobby-grid { grid-template-columns: 1fr 1fr; height: auto; }
-      .hobby-card, .skill-block { flex: none; }
+      .about-cols { flex-direction: column; }
+      .about-col-side { width: 100%; }
+      .hobby-grid { grid-template-columns: 1fr 1fr; }
       .top-bar { padding: 20px 20px 0; }
       .main-name { font-size: 36px; }
       .divider { margin: 14px 20px; }
       .menu-area { flex-direction: column; padding: 0 20px; gap: 0; }
-      .menu-list { flex-direction: row; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 4px; justify-content: flex-start; padding-bottom: 10px; flex-wrap: nowrap; flex-shrink: 0; overscroll-behavior-x: contain; }
+      .menu-list {
+        flex-direction: row; width: 100%;
+        overflow-x: auto !important; overflow-y: visible !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        gap: 4px; flex-wrap: nowrap; flex-shrink: 0;
+        padding-bottom: 10px;
+      }
       .menu-item { flex-shrink: 0; padding: 10px 14px; clip-path: none; border-left: none; border-bottom: 3px solid transparent; transform: none !important; }
       .menu-item.active, .menu-item:hover { border-bottom-color: #fff; border-left: none; transform: none !important; }
-      .about-cols { flex-direction: column; }
-      .about-col-side { width: 100%; }
       .kb-hints { display: none; }
+      .panel-bg-num { display: none; }
       .about-status { margin-top: 16px; }
       .toast { bottom: 16px; right: 16px; min-width: unset; max-width: calc(100vw - 32px); clip-path: none; border-radius: 2px; }
       .sound-btn { top: 10px; right: 10px; }
