@@ -8,293 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
   <script>
-    if (window.innerWidth <= 680) document.documentElement.classList.add('is-mobile');
+    /* Set mobile class before render to avoid flash */
+    if (window.innerWidth <= 680 || screen.width <= 680) {
+      document.documentElement.classList.add('is-mobile');
+    }
   </script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #f4f6fb; font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; }
-
-    @media (max-width: 680px) {
-      html, body { height: auto !important; overflow: visible !important; touch-action: pan-y !important; }
-    }
-
-    .p5 { width: 100%; height: 100vh; background: #f4f6fb; position: relative; overflow: hidden; user-select: none; display: flex; flex-direction: column; }
-
-    .bg-lines { position: absolute; inset: 0; pointer-events: none; background-image: repeating-linear-gradient(-55deg, transparent, transparent 38px, rgba(30,90,200,0.04) 38px, rgba(30,90,200,0.04) 39px); }
-
-    /* ── BOOT ── */
-    .boot-overlay { position: absolute; inset: 0; z-index: 100; background: #f4f6fb; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
-    .boot-monogram { transform: scale(0); animation: monoPop 0.5s cubic-bezier(.34,1.56,.64,1) 0.3s forwards; }
-    .boot-label { font-size: 11px; color: #1a5ce8; letter-spacing: 6px; text-transform: uppercase; font-weight: 700; opacity: 0; animation: fadeIn 0.4s ease 0.85s forwards; }
-    .boot-bar-wrap { width: 200px; height: 2px; background: #e2eaf8; overflow: hidden; opacity: 0; animation: fadeIn 0.3s ease 1s forwards; }
-    .boot-bar { height: 100%; width: 0; background: #1a5ce8; animation: barFill 0.9s cubic-bezier(.4,0,.2,1) 1.1s forwards; }
-    .boot-ready { font-size: 10px; color: #a0b2d0; letter-spacing: 5px; text-transform: uppercase; font-weight: 700; opacity: 0; animation: fadeIn 0.4s ease 2.1s forwards; }
-
-    @keyframes monoPop { to { transform: scale(1); } }
-    @keyframes fadeIn { to { opacity: 1; } }
-    @keyframes barFill { to { width: 100%; } }
-    @keyframes scan { from { top: -4px; } to { top: 110%; } }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    @keyframes toastIn { from { opacity:0; transform: translateX(40px); } to { opacity:1; transform: translateX(0); } }
-    @keyframes toastOut { from { opacity:1; transform: translateX(0); } to { opacity:0; transform: translateX(40px); } }
-    @keyframes idleRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes xpFill { from { width: 0; } }
-
-    .scanline { position: absolute; left: 0; right: 0; height: 2px; background: rgba(26,92,232,0.15); top: -4px; pointer-events: none; z-index: 200; }
-
-    /* ── WIPE OVERLAY ── */
-    .wipe { position: absolute; inset: 0; z-index: 50; pointer-events: none; overflow: hidden; }
-    .wipe-slash {
-      position: absolute; top: 0; bottom: 0;
-      width: 200%; background: #1a5ce8;
-      transform: translateX(-110%) skewX(-12deg);
-      transform-origin: top left;
-      transition: transform 0s;
-    }
-    .wipe.go .wipe-slash { transition: transform 0.22s cubic-bezier(.4,0,.6,1); transform: translateX(0%) skewX(-12deg); }
-    .wipe.out .wipe-slash { transition: transform 0.22s cubic-bezier(.4,0,.6,1) 0.05s; transform: translateX(110%) skewX(-12deg); }
-
-    /* ── SOUND TOGGLE ── */
-    .sound-btn { position: absolute; top: 14px; right: 14px; z-index: 20; width: 32px; height: 32px; border: 1px solid #d4e0f7; background: #f8fbff; cursor: pointer; display: flex; align-items: center; justify-content: center; clip-path: polygon(0 0,100% 0,100% 75%,75% 100%,0 100%); transition: background 0.2s; }
-    .sound-btn:hover { background: #e8f0fc; }
-    .sound-btn svg { width: 14px; height: 14px; }
-
-    /* ── ACHIEVEMENT TOAST ── */
-    .toast { position: fixed; bottom: 24px; right: 24px; z-index: 800; background: #0d1b3e; border: 1px solid #1a5ce8; padding: 12px 16px; display: flex; align-items: center; gap: 12px; clip-path: polygon(0 0,100% 0,100% 80%,95% 100%,0 100%); min-width: 260px; opacity: 0; pointer-events: none; }
-    .toast.show { animation: toastIn 0.4s cubic-bezier(.34,1.2,.64,1) forwards; pointer-events: auto; }
-    .toast.hide { animation: toastOut 0.35s ease forwards; }
-    .toast-icon { font-size: 20px; flex-shrink: 0; }
-    .toast-body { display: flex; flex-direction: column; gap: 2px; }
-    .toast-label { font-size: 9px; color: #1a5ce8; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
-    .toast-title { font-size: 14px; color: #fff; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-
-    /* ── TOP BAR ── */
-    .top-bar { flex-shrink: 0; position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 3vh 4vw 0; }
-    .top-left { display: flex; flex-direction: column; }
-    .name-tag { display: inline-block; background: #1a5ce8; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 3px 28px 3px 10px; clip-path: polygon(0 0,100% 0,97% 100%,0 100%); margin-bottom: 8px; align-self: flex-start; }
-    .main-name { font-size: clamp(30px,4.8vw,58px); font-weight: 700; line-height: 1; text-transform: uppercase; letter-spacing: 3px; color: #0d1b3e; }
-    .main-name span { color: #1a5ce8; }
-    .sub-title { font-size: clamp(10px,1vw,13px); color: #7a90b8; letter-spacing: 4px; text-transform: uppercase; margin-top: 7px; font-family: 'Barlow', sans-serif; font-weight: 400; }
-    .jb-mark { flex-shrink: 0; cursor: default; }
-    .jb-mark svg { display: block; transform-origin: center; }
-    .jb-mark.idle svg { animation: idleRotate 3s linear infinite; }
-    .jb-hex { fill: #f0f5ff; stroke: #1a5ce8; stroke-width: 2; transition: fill 0.3s; }
-    .jb-mark:hover .jb-hex { fill: #1a5ce8; }
-    .jb-text { font-size: 22px; font-weight: 700; fill: #1a5ce8; font-family: 'Barlow Condensed', Arial, sans-serif; letter-spacing: 1px; transition: fill 0.3s; }
-    .jb-mark:hover .jb-text { fill: #fff; }
-    .jb-idle { transform-box: fill-box; transform-origin: center; }
-    .jb-mark:hover .jb-hex { fill: #1a5ce8; }
-    .jb-text { font-size: 22px; font-weight: 700; fill: #1a5ce8; font-family: 'Barlow Condensed', Arial, sans-serif; letter-spacing: 1px; transition: fill 0.3s; }
-    .jb-mark:hover .jb-text { fill: #fff; }
-    .jb-idle { transform-box: fill-box; transform-origin: center; }
-
-    .divider { flex-shrink: 0; height: 2px; margin: 2vh 4vw; background: #1a5ce8; clip-path: polygon(0 0,100% 0,98.5% 100%,0 100%); position: relative; z-index: 10; transform-origin: left; }
-
-    /* ── MAIN AREA ── */
-    .menu-area { flex: 1; display: flex; padding: 0 4vw; gap: 2.5vw; position: relative; z-index: 10; min-height: 0; }
-    .menu-list { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: clamp(180px,17vw,240px); flex-shrink: 0; }
-    .menu-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; clip-path: polygon(0 0,100% 0,97% 100%,0 100%); border-left: 3px solid transparent; transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease; }
-    .menu-item.anim-hidden { opacity: 0; transform: translateX(-40px); }
-    .menu-item:hover, .menu-item.active { background: #1a5ce8; border-left-color: #fff; transform: translateX(6px); }
-    .menu-item.active .item-num, .menu-item:hover .item-num { color: rgba(255,255,255,0.6); }
-    .menu-item.active .item-label, .menu-item:hover .item-label { color: #fff; }
-    .item-num { font-size: 10px; color: #a0b2d0; font-weight: 700; letter-spacing: 1px; min-width: 22px; }
-    .item-label { font-size: clamp(15px,1.6vw,20px); font-weight: 700; color: #2c3e6b; text-transform: uppercase; letter-spacing: 2px; }
-    .item-arrow { margin-left: auto; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 7px solid rgba(255,255,255,0.5); opacity: 0; transition: opacity 0.2s; }
-    .menu-item.active .item-arrow, .menu-item:hover .item-arrow { opacity: 1; }
-
-    /* ── PANEL ── */
-    .panel { flex: 1; background: #fff; border: 1px solid #d4e0f7; clip-path: polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); padding: clamp(20px,3vw,40px); position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
-    .panel-bg-num { position: absolute; right: 18px; bottom: 10px; font-size: clamp(90px,12vw,160px); font-weight: 700; color: rgba(26,92,232,0.035); line-height: 1; pointer-events: none; letter-spacing: -8px; }
-    .panel-section { display: none; flex-direction: column; flex: 1; min-height: 0; }
-    .panel-section.visible { display: flex; }
-
-    /* ── TYPEWRITER TITLE ── */
-    .panel-title { flex-shrink: 0; font-size: 10px; color: #1a5ce8; letter-spacing: 5px; text-transform: uppercase; font-weight: 700; margin-bottom: clamp(14px,2.2vh,26px); display: flex; align-items: center; gap: 12px; min-height: 18px; }
-    .panel-title::after { content: ''; flex: 1; height: 1px; background: #e2eaf8; }
-    .title-cursor { display: inline-block; width: 2px; height: 1em; background: #1a5ce8; margin-left: 2px; animation: blink 0.8s step-end infinite; vertical-align: middle; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-    .panel-body { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding-right: 4px; }
-    .panel-body::-webkit-scrollbar { width: 3px; }
-    .panel-body::-webkit-scrollbar-thumb { background: #d4e0f7; border-radius: 2px; }
-
-    /* ── REVEAL ── */
-    .reveal { opacity: 0; transform: translateX(-18px); transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); }
-    .reveal.in { opacity: 1 !important; transform: translateX(0) !important; }
-    .reveal-up { opacity: 0; transform: translateY(20px); transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); }
-    .reveal-up.in { opacity: 1 !important; transform: translateY(0) !important; }
-
-    /* ── ABOUT ── */
-    .about-flavour { font-family: 'Barlow', sans-serif; font-size: clamp(11px,1vw,13px); color: #1a5ce8; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; margin-bottom: clamp(8px,1.2vh,14px); }
-    .about-lead { font-size: clamp(20px,2.4vw,32px); color: #0d1b3e; font-weight: 700; line-height: 1.3; margin-bottom: clamp(14px,2vh,24px); }
-    .about-lead span { color: #1a5ce8; }
-    .about-cols { display: flex; gap: clamp(16px,2vw,32px); flex: 1; min-height: 0; }
-    .about-col-main { flex: 1; display: flex; flex-direction: column; gap: clamp(10px,1.5vh,18px); min-height: 0; }
-    .about-col-side { width: clamp(180px,18vw,230px); flex-shrink: 0; display: flex; flex-direction: column; gap: clamp(8px,1.2vh,14px); }
-    .about-body { font-family: 'Barlow', sans-serif; font-size: clamp(13px,1.15vw,16px); color: #4a5a7a; line-height: 1.85; font-weight: 400; }
-    .about-body strong { color: #0d1b3e; font-weight: 500; }
-    .about-status { display: flex; align-items: center; gap: 10px; padding: clamp(10px,1.4vh,16px) 14px; background: #f0f5ff; border-left: 3px solid #1a5ce8; margin-top: auto; }
-    .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; flex-shrink: 0; animation: pulse 2s ease infinite; }
-    .status-text { font-family: 'Barlow', sans-serif; font-size: clamp(11px,1vw,13px); color: #2c3e6b; font-weight: 500; }
-    .about-tags { display: flex; flex-wrap: wrap; gap: 7px; }
-    .about-tag { font-size: clamp(10px,0.85vw,12px); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 12px; border: 1px solid #d4e0f7; color: #4a6aaa; background: #f8fbff; clip-path: polygon(0 0,100% 0,96% 100%,0 100%); }
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(7px,1vh,12px); }
-    .stat-box { border: 1px solid #e2eaf8; padding: clamp(10px,1.8vh,20px) clamp(8px,1vw,14px); clip-path: polygon(0 0,100% 0,97% 100%,0 100%); background: #f8fbff; }
-    .stat-val { font-size: clamp(24px,3vw,42px); font-weight: 700; color: #1a5ce8; line-height: 1; }
-    .stat-label { font-family: 'Barlow', sans-serif; font-size: clamp(8px,0.7vw,10px); color: #8faad4; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; font-weight: 400; }
-
-    /* ── SKILLS / XP ── */
-    .skills-layout { flex: 1; display: flex; flex-direction: column; gap: clamp(10px,1.5vh,18px); }
-    .skill-block { display: flex; flex-direction: column; gap: clamp(6px,1vh,12px); flex: 1; }
-    .skill-section-title { font-size: clamp(9px,0.8vw,11px); color: #a0b2d0; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
-    .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(8px,1.2vh,14px); }
-    .skill-item { display: flex; flex-direction: column; gap: 5px; }
-    .skill-header { display: flex; justify-content: space-between; align-items: baseline; }
-    .skill-name { font-size: clamp(11px,1vw,14px); color: #2c3e6b; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
-    .skill-lvl { font-size: 9px; color: #1a5ce8; font-weight: 700; letter-spacing: 1px; }
-    .xp-bar-bg { height: 5px; background: #e8f0fc; overflow: hidden; position: relative; clip-path: polygon(0 0,100% 0,98% 100%,0 100%); }
-    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #1a5ce8, #5b8ef0); width: 0; transition: width 1.3s cubic-bezier(.4,0,.2,1); }
-
-    /* ── EXPERIENCE ── */
-    .exp-layout { flex: 1; display: flex; gap: clamp(14px,2vw,28px); min-height: 0; }
-    .exp-col { flex: 1; display: flex; flex-direction: column; gap: clamp(7px,1vh,12px); min-height: 0; }
-    .exp-col-title { font-size: clamp(9px,0.8vw,11px); color: #a0b2d0; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; flex-shrink: 0; margin-bottom: 2px; }
-    .exp-row { flex: 1; padding: clamp(10px,1.5vh,18px) clamp(12px,1.2vw,18px); border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,98% 100%,0 100%); display: flex; flex-direction: column; justify-content: center; transition: border-color 0.2s, background 0.2s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); }
-    .exp-row:hover { border-color: #c5d4f7; background: #edf3ff; }
-    .exp-role { font-size: clamp(13px,1.3vw,17px); font-weight: 700; color: #0d1b3e; text-transform: uppercase; letter-spacing: 1px; }
-    .exp-company { font-size: clamp(11px,1vw,13px); color: #1a5ce8; letter-spacing: 1.5px; margin-top: 4px; font-family: 'Barlow', sans-serif; }
-    .exp-period { font-size: clamp(10px,0.85vw,12px); color: #a0b2d0; letter-spacing: 1px; margin-top: 3px; font-family: 'Barlow', sans-serif; }
-    .cert-row { flex: 1; display: flex; align-items: center; gap: 10px; padding: clamp(8px,1.1vh,14px) 14px; border-left: 2px solid #e2eaf8; background: #f8fbff; transition: border-color 0.25s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); }
-    .cert-row:hover { border-left-color: #1a5ce8; }
-    .cert-dot { width: 6px; height: 6px; background: #1a5ce8; flex-shrink: 0; transform: rotate(45deg); }
-    .cert-text { font-size: clamp(10px,0.9vw,13px); color: #2c3e6b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.3; }
-
-    /* ── HOBBIES ── */
-    .hobbies-layout { flex: 1; display: flex; flex-direction: column; gap: clamp(12px,1.8vh,22px); min-height: 0; }
-    .hobbies-flavour { font-family: 'Barlow', sans-serif; font-size: clamp(11px,1vw,13px); color: #1a5ce8; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; }
-    .hobbies-lead { font-size: clamp(18px,2.2vw,28px); color: #0d1b3e; font-weight: 700; line-height: 1.3; }
-    .hobbies-lead span { color: #1a5ce8; }
-    .hobby-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: clamp(8px,1.2vh,16px); flex: 1; }
-    .hobby-card { border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,100% 85%,90% 100%,0 100%); padding: clamp(12px,1.8vh,22px) clamp(10px,1.2vw,16px); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.25s, background 0.25s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); cursor: default; }
-    .hobby-card:hover { border-color: #c5d4f7; background: #edf3ff; }
-    .hobby-icon { font-size: clamp(20px,2.2vw,28px); line-height: 1; }
-    .hobby-name { font-size: clamp(13px,1.2vw,16px); font-weight: 700; color: #0d1b3e; text-transform: uppercase; letter-spacing: 1px; }
-    .hobby-desc { font-family: 'Barlow', sans-serif; font-size: clamp(11px,0.95vw,13px); color: #7a90b8; line-height: 1.5; font-weight: 400; margin-top: auto; }
-
-    /* ── CONTACT ── */
-    .contact-layout { flex: 1; display: flex; gap: clamp(16px,2vw,32px); min-height: 0; }
-    .contact-left { flex: 1; display: flex; flex-direction: column; gap: clamp(10px,1.5vh,18px); }
-    .contact-lead { font-size: clamp(20px,2.4vw,32px); color: #0d1b3e; font-weight: 700; line-height: 1.3; }
-    .contact-lead span { color: #1a5ce8; }
-    .contact-sub { font-family: 'Barlow', sans-serif; font-size: clamp(13px,1.15vw,16px); color: #7a90b8; line-height: 1.7; font-weight: 400; }
-    .contact-list { display: flex; flex-direction: column; gap: clamp(8px,1.2vh,14px); flex: 1; }
-    .contact-row { flex: 1; display: flex; align-items: center; gap: 18px; padding: clamp(10px,1.6vh,20px) clamp(14px,1.5vw,22px); border: 1px solid #e2eaf8; background: #f8fbff; clip-path: polygon(0 0,100% 0,98% 100%,0 100%); cursor: pointer; transition: background 0.25s, border-color 0.25s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); text-decoration: none; max-height: 80px; }
-    .contact-row:hover { background: #edf3ff; border-color: #c5d4f7; }
-    .contact-type { font-size: clamp(9px,0.8vw,11px); color: #1a5ce8; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; min-width: 80px; }
-    .contact-val { font-family: 'Barlow', sans-serif; font-size: clamp(13px,1.2vw,16px); color: #4a5a7a; letter-spacing: 0.3px; font-weight: 400; }
-
-    /* ── BOTTOM BAR ── */
-    .bottom-bar { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 1.5vh 4vw; position: relative; z-index: 10; }
-    .kb-hints { display: flex; gap: 16px; align-items: center; }
-    .kb-hint { display: flex; align-items: center; gap: 6px; }
-    .kb-key { font-size: 9px; color: #7a90b8; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; border: 1px solid #d4e0f7; padding: 2px 6px; background: #f0f5ff; clip-path: polygon(0 0,100% 0,96% 100%,0 100%); }
-    .kb-desc { font-family: 'Barlow', sans-serif; font-size: 10px; color: #b0c4e0; font-weight: 400; }
-    .corner-mark { font-size: 10px; color: #c8d8ee; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
-
-    /* ── MOBILE ── */
-    html.is-mobile, html.is-mobile body {
-      height: auto !important; overflow: visible !important;
-      touch-action: pan-y;
-    }
-    html.is-mobile .p5 {
-      height: auto !important; min-height: 100vh;
-      overflow: visible !important; display: block !important;
-    }
-    html.is-mobile .top-bar {
-      padding: 20px 16px 0 !important;
-      opacity: 1 !important; transform: none !important;
-    }
-    html.is-mobile .main-name { font-size: 32px !important; }
-    html.is-mobile .jb-mark { display: none !important; }
-    html.is-mobile .divider {
-      margin: 12px 16px !important;
-      opacity: 1 !important; transform: scaleX(1) !important;
-    }
-    html.is-mobile .menu-area {
-      display: block !important; height: auto !important;
-      overflow: visible !important; padding: 0 16px !important;
-    }
-    html.is-mobile .menu-list {
-      display: flex !important; flex-direction: row !important;
-      width: 100% !important; height: auto !important;
-      overflow-x: auto !important; overflow-y: visible !important;
-      -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
-      gap: 4px; padding: 8px 0 12px !important; flex-wrap: nowrap !important;
-      justify-content: flex-start !important;
-    }
-    html.is-mobile .menu-item {
-      flex-shrink: 0 !important; width: auto !important;
-      padding: 10px 14px !important; clip-path: none !important;
-      border-left: none !important; border-bottom: 3px solid transparent !important;
-      opacity: 1 !important; transform: none !important;
-      transition: background 0.2s, border-color 0.2s !important;
-    }
-    html.is-mobile .menu-item.anim-hidden { opacity: 1 !important; transform: none !important; }
-    html.is-mobile .menu-item.active { border-bottom-color: #fff !important; transform: none !important; }
-    html.is-mobile .menu-item:hover { transform: none !important; }
-    html.is-mobile .item-label { font-size: 15px !important; }
-    html.is-mobile .item-arrow { display: none !important; }
-    html.is-mobile .panel {
-      display: block !important; height: auto !important;
-      overflow: visible !important; clip-path: none !important;
-      padding: 20px 16px 32px !important; margin: 0 !important;
-      opacity: 1 !important; transform: none !important;
-      border-left: none !important; border-right: none !important;
-      flex: none !important; min-height: 0 !important;
-    }
-    html.is-mobile .panel-section {
-      display: none !important; height: auto !important; overflow: visible !important;
-    }
-    html.is-mobile .panel-section.visible { display: block !important; }
-    html.is-mobile .panel-body {
-      display: block !important; height: auto !important;
-      overflow: visible !important; max-height: none !important;
-      flex: none !important; padding-right: 0 !important;
-    }
-    html.is-mobile .about-cols, html.is-mobile .exp-layout, html.is-mobile .contact-layout {
-      display: block !important; height: auto !important; overflow: visible !important;
-    }
-    html.is-mobile .about-col-side { width: 100% !important; margin-top: 16px; }
-    html.is-mobile .skills-layout, html.is-mobile .skill-block,
-    html.is-mobile .exp-col, html.is-mobile .contact-left,
-    html.is-mobile .contact-list, html.is-mobile .hobbies-layout {
-      display: block !important; height: auto !important;
-      overflow: visible !important; flex: none !important;
-    }
-    html.is-mobile .exp-col { margin-bottom: 20px; }
-    html.is-mobile .exp-row, html.is-mobile .cert-row { flex: none !important; height: auto !important; margin-bottom: 8px; }
-    html.is-mobile .contact-row { flex: none !important; max-height: none !important; margin-bottom: 8px; }
-    html.is-mobile .hobby-grid { grid-template-columns: 1fr 1fr !important; height: auto !important; }
-    html.is-mobile .hobby-card, html.is-mobile .skill-item { flex: none !important; }
-    html.is-mobile .bottom-bar { opacity: 1 !important; }
-    html.is-mobile .kb-hints { display: none !important; }
-    html.is-mobile .panel-bg-num { display: none !important; }
-    html.is-mobile .wipe { display: none !important; }
-    html.is-mobile .sound-btn { opacity: 1 !important; top: 10px !important; right: 10px !important; }
-    html.is-mobile .about-status { margin-top: 16px; }
-    html.is-mobile .toast {
-      bottom: 16px !important; right: 16px !important; left: 16px !important;
-      min-width: unset !important; max-width: none !important;
-      clip-path: none !important; border-radius: 2px !important;
-    }
-    /* Keep media query as fallback for browsers that run JS late */
-    @media (max-width: 680px) {
-      html, body { height: auto !important; overflow-x: hidden !important; overflow-y: auto !important; touch-action: pan-y; }
-    }
-  </style>
 </head>
 <body>
 <div class="p5" id="root">
@@ -311,14 +31,23 @@
   <!-- WIPE -->
   <div class="wipe" id="wipe"><div class="wipe-slash" id="wipeSlash"></div></div>
 
-  <!-- SOUND TOGGLE -->
-  <div class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Toggle sound">
-    <svg id="soundIcon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M2 6h3l4-3v10l-4-3H2V6z" fill="#1a5ce8"/>
-      <path id="soundWave1" d="M11 5.5a3 3 0 0 1 0 5" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
-      <path id="soundWave2" d="M12.5 3.5a5.5 5.5 0 0 1 0 9" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
-      <path id="soundMute" d="M11 6l3 4M14 6l-3 4" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round" style="display:none"/>
-    </svg>
+  <!-- MOBILE BURGER BUTTON -->
+  <div class="burger-btn" id="burgerBtn" onclick="toggleBurger()">
+    <span></span><span></span><span></span>
+  </div>
+
+  <!-- MOBILE OVERLAY MENU -->
+  <div class="burger-overlay" id="burgerOverlay">
+    <div class="burger-overlay-inner">
+      <div class="burger-overlay-title">Navigate</div>
+      <div class="burger-menu-items">
+        <div class="burger-item" data-panel="about"      onclick="burgerSel(this)"><span class="burger-num">01</span><span class="burger-label">About</span><div class="burger-arrow">▶</div></div>
+        <div class="burger-item" data-panel="skills"     onclick="burgerSel(this)"><span class="burger-num">02</span><span class="burger-label">Skills</span><div class="burger-arrow">▶</div></div>
+        <div class="burger-item" data-panel="experience" onclick="burgerSel(this)"><span class="burger-num">03</span><span class="burger-label">Experience</span><div class="burger-arrow">▶</div></div>
+        <div class="burger-item" data-panel="hobbies"    onclick="burgerSel(this)"><span class="burger-num">04</span><span class="burger-label">Hobbies</span><div class="burger-arrow">▶</div></div>
+        <div class="burger-item" data-panel="contact"    onclick="burgerSel(this)"><span class="burger-num">05</span><span class="burger-label">Contact</span><div class="burger-arrow">▶</div></div>
+      </div>
+    </div>
   </div>
 
   <!-- ACHIEVEMENT TOAST -->
@@ -330,7 +59,7 @@
     </div>
   </div>
 
-  <!-- BOOT -->
+  <!-- BOOT SCREEN -->
   <div class="boot-overlay" id="bootOverlay">
     <div class="boot-monogram">
       <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
@@ -360,15 +89,19 @@
 
   <div class="divider" id="divider"></div>
 
+  <!-- MAIN LAYOUT -->
   <div class="menu-area">
+
+    <!-- DESKTOP NAV -->
     <div class="menu-list" id="menuList">
-      <div class="menu-item active" data-panel="about" onclick="sel(this)"><span class="item-num">01</span><span class="item-label">About</span><div class="item-arrow"></div></div>
-      <div class="menu-item" data-panel="skills" onclick="sel(this)"><span class="item-num">02</span><span class="item-label">Skills</span><div class="item-arrow"></div></div>
-      <div class="menu-item" data-panel="experience" onclick="sel(this)"><span class="item-num">03</span><span class="item-label">Experience</span><div class="item-arrow"></div></div>
-      <div class="menu-item" data-panel="hobbies" onclick="sel(this)"><span class="item-num">04</span><span class="item-label">Hobbies</span><div class="item-arrow"></div></div>
-      <div class="menu-item" data-panel="contact" onclick="sel(this)"><span class="item-num">05</span><span class="item-label">Contact</span><div class="item-arrow"></div></div>
+      <div class="menu-item active" data-panel="about"      onclick="sel(this)"><span class="item-num">01</span><span class="item-label">About</span><div class="item-arrow"></div></div>
+      <div class="menu-item"        data-panel="skills"     onclick="sel(this)"><span class="item-num">02</span><span class="item-label">Skills</span><div class="item-arrow"></div></div>
+      <div class="menu-item"        data-panel="experience" onclick="sel(this)"><span class="item-num">03</span><span class="item-label">Experience</span><div class="item-arrow"></div></div>
+      <div class="menu-item"        data-panel="hobbies"    onclick="sel(this)"><span class="item-num">04</span><span class="item-label">Hobbies</span><div class="item-arrow"></div></div>
+      <div class="menu-item"        data-panel="contact"    onclick="sel(this)"><span class="item-num">05</span><span class="item-label">Contact</span><div class="item-arrow"></div></div>
     </div>
 
+    <!-- PANEL -->
     <div class="panel" id="panel">
       <div class="panel-bg-num" id="pNum">01</div>
 
@@ -382,6 +115,12 @@
             <div class="about-col-main">
               <div class="about-body">Senior Salesforce Consultant with <strong>10+ years of IT experience</strong> and 8 years specialising in Salesforce. Expert in Release Management and large-scale deployments across retail, pharma, municipal, and aviation.</div>
               <div class="about-body">Known for delivering <strong>zero-defect releases</strong> and mentoring teams to raise technical capabilities. Holder of <strong>6 Salesforce certifications</strong> spanning development, architecture, and AI.</div>
+              <div class="stat-grid">
+                <div class="stat-box"><div class="stat-val">10+</div><div class="stat-label">Years IT</div></div>
+                <div class="stat-box"><div class="stat-val">8</div><div class="stat-label">Years SF</div></div>
+                <div class="stat-box"><div class="stat-val">6x</div><div class="stat-label">Certified</div></div>
+                <div class="stat-box"><div class="stat-val">0</div><div class="stat-label">Rollbacks</div></div>
+              </div>
               <div class="about-status"><div class="status-dot"></div><div class="status-text">Currently at KCSIT</div></div>
               <div class="about-tags">
                 <div class="about-tag">Release Management</div>
@@ -389,14 +128,6 @@
                 <div class="about-tag">Team Leadership</div>
                 <div class="about-tag">Enterprise Deployments</div>
                 <div class="about-tag">Agile</div>
-              </div>
-            </div>
-            <div class="about-col-side">
-              <div class="stat-grid">
-                <div class="stat-box"><div class="stat-val">10+</div><div class="stat-label">Years IT</div></div>
-                <div class="stat-box"><div class="stat-val">8</div><div class="stat-label">Years SF</div></div>
-                <div class="stat-box"><div class="stat-val">6x</div><div class="stat-label">Certified</div></div>
-                <div class="stat-box"><div class="stat-val">0</div><div class="stat-label">Rollbacks</div></div>
               </div>
             </div>
           </div>
@@ -502,7 +233,6 @@
             <div class="contact-left reveal-up">
               <div class="contact-lead">Let's build something<br><span>great together.</span></div>
               <div class="contact-sub">Whether it's a complex Salesforce project, a release strategy challenge, or just a good conversation about tech — I'm always up for it.</div>
-              <div class="about-status" style="margin-top:auto;"><div class="status-dot"></div><div class="status-text">Currently at KCSIT</div></div>
             </div>
             <div class="contact-list">
               <a class="contact-row reveal" href="https://linkedin.com/in/jorge-b-5a188679" target="_blank" rel="noopener"><div class="contact-type">LinkedIn</div><div class="contact-val">linkedin.com/in/jorge-b-5a188679</div></a>
@@ -510,272 +240,31 @@
               <div class="contact-row reveal"><div class="contact-type">Education</div><div class="contact-val">BSc Computer Science — Lusófona, 2013</div></div>
             </div>
           </div>
+          <div class="about-status reveal" style="margin-top: clamp(14px,2vh,24px);"><div class="status-dot"></div><div class="status-text">Currently at KCSIT</div></div>
         </div>
       </div>
-    </div>
-  </div>
 
+    </div><!-- /panel -->
+  </div><!-- /menu-area -->
+
+  <!-- BOTTOM BAR -->
   <div class="bottom-bar" id="bottomBar">
     <div class="kb-hints">
       <div class="kb-hint"><div class="kb-key">↑ ↓</div><div class="kb-desc">navigate</div></div>
     </div>
+    <div class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Toggle sound">
+      <svg id="soundIcon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 6h3l4-3v10l-4-3H2V6z" fill="#1a5ce8"/>
+        <path id="soundWave1" d="M11 5.5a3 3 0 0 1 0 5" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
+        <path id="soundWave2" d="M12.5 3.5a5.5 5.5 0 0 1 0 9" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
+        <path id="soundMute" d="M11 6l3 4M14 6l-3 4" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round" style="display:none"/>
+      </svg>
+    </div>
     <div class="corner-mark">JB · 2026</div>
   </div>
-</div>
 
-<script>
-  /* ── AUDIO ── */
-  let soundOn = true;
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  let actx = null;
-  function getCtx() { if (!actx) actx = new AudioCtx(); return actx; }
+</div><!-- /p5 -->
 
-  function playBlip(freq = 520, dur = 0.06, vol = 0.08) {
-    if (!soundOn) return;
-    try {
-      const ctx = getCtx();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.type = 'square';
-      o.frequency.value = freq;
-      g.gain.setValueAtTime(vol, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-      o.start(); o.stop(ctx.currentTime + dur);
-    } catch(e) {}
-  }
-
-  function playNav()   { playBlip(440, 0.05, 0.07); }
-  function playSelect(){ playBlip(660, 0.08, 0.09); setTimeout(() => playBlip(880, 0.06, 0.07), 70); }
-  function playBoot()  { [220,330,440,660].forEach((f,i) => setTimeout(() => playBlip(f, 0.1, 0.1), i*80)); }
-  function playToast() { playBlip(880, 0.05, 0.08); setTimeout(() => playBlip(1100, 0.1, 0.08), 60); }
-
-  function toggleSound() {
-    soundOn = !soundOn;
-    document.getElementById('soundWave1').style.display = soundOn ? '' : 'none';
-    document.getElementById('soundWave2').style.display = soundOn ? '' : 'none';
-    document.getElementById('soundMute').style.display = soundOn ? 'none' : '';
-    if (soundOn) playSelect();
-  }
-
-  /* ── TYPEWRITER ── */
-  function typeTitle(el, text, cb) {
-    el.textContent = '';
-    const cursor = document.createElement('span');
-    cursor.className = 'title-cursor';
-    el.appendChild(cursor);
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < text.length) {
-        el.insertBefore(document.createTextNode(text[i]), cursor);
-        i++;
-      } else {
-        clearInterval(interval);
-        setTimeout(() => { cursor.remove(); if (cb) cb(); }, 400);
-      }
-    }, 38);
-  }
-
-  /* ── WIPE TRANSITION ── */
-  function wipeTransition(cb) {
-    const wipe = document.getElementById('wipe');
-    wipe.classList.remove('out');
-    wipe.classList.add('go');
-    setTimeout(() => {
-      cb();
-      wipe.classList.remove('go');
-      wipe.classList.add('out');
-      setTimeout(() => { wipe.classList.remove('out'); }, 300);
-    }, 240);
-  }
-
-  /* ── ACHIEVEMENT ── */
-  const visited = new Set();
-  const achievements = {
-    skills:     'Skills Inspected',
-    experience: 'Career Reviewed',
-    hobbies:    'True Self Revealed',
-    contact:    'Ready to Connect',
-    all:        'Full Profile Viewed'
-  };
-  let toastTimer = null;
-
-  function showToast(title) {
-    playToast();
-    const toast = document.getElementById('toast');
-    document.getElementById('toastTitle').textContent = title;
-    toast.classList.remove('hide');
-    toast.classList.add('show');
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      toast.classList.remove('show');
-      toast.classList.add('hide');
-    }, 3200);
-  }
-
-  function checkAchievement(panelId) {
-    if (panelId === 'about') return;
-    if (!visited.has(panelId)) {
-      visited.add(panelId);
-      setTimeout(() => {
-        if (visited.size === 4) showToast(achievements.all);
-        else if (achievements[panelId]) showToast(achievements[panelId]);
-      }, 900);
-    }
-  }
-
-  /* ── IDLE ANIMATION ── */
-  let idleTimer = null;
-  let idleActive = false;
-  const jbMark = document.getElementById('jbMark');
-
-  function startIdle() {
-    if (idleActive) return;
-    idleActive = true;
-    jbMark.classList.add('idle');
-  }
-  function resetIdle() {
-    idleActive = false;
-    jbMark.classList.remove('idle');
-    clearTimeout(idleTimer);
-    idleTimer = setTimeout(startIdle, 9000);
-  }
-  ['mousemove','keydown','click','touchstart'].forEach(e => document.addEventListener(e, resetIdle, { passive: true }));
-
-  /* ── REVEAL ── */
-  function revealPanel(panelId) {
-    const section = document.getElementById('panel-' + panelId);
-    if (!section) return;
-    const items = Array.from(section.querySelectorAll('.reveal, .reveal-up'));
-    items.forEach(el => { el.classList.remove('in'); });
-    requestAnimationFrame(() => {
-      items.forEach((el, i) => {
-        setTimeout(() => {
-          el.classList.add('in');
-          const bar = el.querySelector('.xp-bar-fill');
-          if (bar) setTimeout(() => { bar.style.width = bar.dataset.w + '%'; }, 150);
-        }, 80 + i * 140);
-      });
-      setTimeout(() => { items.forEach(el => el.classList.add('in')); }, 80 + items.length * 140 + 800);
-    });
-  }
-
-  /* ── EASE HELPER ── */
-  const ease = (el, props, dur, delay) => {
-    el.style.transition = `opacity ${dur}ms cubic-bezier(.4,0,.2,1) ${delay}ms, transform ${dur}ms cubic-bezier(.34,1.28,.64,1) ${delay}ms`;
-    requestAnimationFrame(() => requestAnimationFrame(() => Object.assign(el.style, props)));
-  };
-
-  /* ── BOOT ── */
-  const panels = ['about','skills','experience','hobbies','contact'];
-  const panelNums = { about:'01', skills:'02', experience:'03', hobbies:'04', contact:'05' };
-  let currentIndex = 0;
-  let booted = false;
-
-  function runBoot() {
-    const overlay   = document.getElementById('bootOverlay');
-    const topBar    = document.getElementById('topBar');
-    const divider   = document.getElementById('divider');
-    const menuItems = document.querySelectorAll('.menu-item');
-    const panel     = document.getElementById('panel');
-    const bottom    = document.getElementById('bottomBar');
-    const soundBtn  = document.getElementById('soundBtn');
-    const scan      = document.getElementById('scanline');
-
-    const isMobile = window.innerWidth <= 680;
-
-    if (isMobile) {
-      overlay.style.display = 'none';
-      const titleEl = document.querySelector('#panel-about .panel-title');
-      typeTitle(titleEl, 'Profile', () => revealPanel('about'));
-      booted = true;
-      resetIdle();
-      return;
-    }
-
-    // Desktop: set initial hidden states then animate in
-    topBar.style.opacity = '0'; topBar.style.transform = 'translateY(-18px)';
-    divider.style.opacity = '0'; divider.style.transform = 'scaleX(0)';
-    panel.style.opacity = '0'; panel.style.transform = 'translateY(20px)';
-    bottom.style.opacity = '0';
-    soundBtn.style.opacity = '0';
-    menuItems.forEach(item => item.classList.add('anim-hidden'));
-
-    const go = () => {
-      if (booted) return;
-      booted = true;
-      playBoot();
-      overlay.style.transition = 'opacity 0.6s ease';
-      overlay.style.opacity = '0';
-      setTimeout(() => { overlay.style.display = 'none'; }, 600);
-      scan.style.animation = 'scan 0.55s linear forwards';
-      setTimeout(() => { ease(topBar, { opacity:'1', transform:'translateY(0)' }, 700, 0); }, 100);
-      setTimeout(() => {
-        divider.style.opacity = '1';
-        divider.style.transition = 'transform 0.7s cubic-bezier(.4,0,.2,1)';
-        requestAnimationFrame(() => requestAnimationFrame(() => { divider.style.transform = 'scaleX(1)'; }));
-      }, 550);
-      menuItems.forEach((item, i) => {
-        setTimeout(() => {
-          item.classList.remove('anim-hidden');
-          item.style.transition = 'opacity 0.55s cubic-bezier(.4,0,.2,1), transform 0.6s cubic-bezier(.34,1.22,.64,1), background 0.25s ease, border-color 0.25s ease';
-        }, 750 + i * 110);
-      });
-      setTimeout(() => {
-        ease(panel, { opacity:'1', transform:'translateY(0)' }, 700, 0);
-        const titleEl = document.querySelector('#panel-about .panel-title');
-        typeTitle(titleEl, 'Profile', () => revealPanel('about'));
-      }, 1200);
-      setTimeout(() => {
-        ease(bottom, { opacity:'1', transform:'translateY(0)' }, 600, 0);
-        soundBtn.style.transition = 'opacity 0.4s ease';
-        soundBtn.style.opacity = '1';
-      }, 1600);
-      setTimeout(() => resetIdle(), 2000);
-    };
-
-    document.addEventListener('keydown', go, { once: true });
-    setTimeout(go, 2700);
-  }
-
-  /* ── SELECT ── */
-  function sel(el) {
-    const p = el.dataset.panel;
-    if (panels[currentIndex] === p) return;
-    playSelect();
-    currentIndex = panels.indexOf(p);
-    checkAchievement(p);
-
-    const doSwitch = () => {
-      document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-      el.classList.add('active');
-      document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('visible'));
-      document.getElementById('panel-' + p).classList.add('visible');
-      document.getElementById('pNum').textContent = panelNums[p];
-      const titleEl = document.querySelector('#panel-' + p + ' .panel-title');
-      const titleText = el.querySelector('.item-label').textContent;
-      typeTitle(titleEl, titleText, () => revealPanel(p));
-    };
-
-    if (window.innerWidth <= 680) {
-      doSwitch();
-    } else {
-      wipeTransition(doSwitch);
-    }
-  }
-
-  document.addEventListener('keydown', e => {
-    if (!booted) return;
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      playNav();
-      if (e.key === 'ArrowDown') currentIndex = Math.min(currentIndex + 1, panels.length - 1);
-      if (e.key === 'ArrowUp')   currentIndex = Math.max(currentIndex - 1, 0);
-      const menuItem = document.querySelector(`.menu-item[data-panel="${panels[currentIndex]}"]`);
-      if (menuItem) sel(menuItem);
-    }
-  });
-
-  runBoot();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
