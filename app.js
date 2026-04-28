@@ -79,12 +79,14 @@ const achievements = {
   all:        'Full Profile Viewed'
 };
 let toastTimer = null;
+let allUnlocked = false;
 
 function showToast(title) {
   playToast();
   const toast = document.getElementById('toast');
   document.getElementById('toastTitle').textContent = title;
-  toast.classList.remove('hide');
+  toast.classList.remove('show', 'hide');
+  void toast.offsetWidth;
   toast.classList.add('show');
   if (toastTimer) clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
@@ -98,8 +100,11 @@ function checkAchievement(panelId) {
   if (!visited.has(panelId)) {
     visited.add(panelId);
     setTimeout(() => {
-      if (visited.size === 4) showToast(achievements.all);
-      else if (achievements[panelId]) showToast(achievements[panelId]);
+      if (achievements[panelId]) showToast(achievements[panelId]);
+      if (visited.size === 4 && !allUnlocked) {
+        allUnlocked = true;
+        setTimeout(() => showToast(achievements.all), 3600);
+      }
     }, 900);
   }
 }
@@ -131,7 +136,6 @@ function revealPanel(panelId) {
   const section = document.getElementById('panel-' + panelId);
   if (!section) return;
   const items = Array.from(section.querySelectorAll('.reveal, .reveal-up'));
-  items.forEach(el => { el.classList.remove('in'); });
   requestAnimationFrame(() => {
     items.forEach((el, i) => {
       setTimeout(() => {
@@ -194,7 +198,9 @@ function burgerSel(el) {
     document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
     document.querySelector(`.menu-item[data-panel="${p}"]`).classList.add('active');
     document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('visible'));
-    document.getElementById('panel-' + p).classList.add('visible');
+    const section = document.getElementById('panel-' + p);
+    section.querySelectorAll('.reveal, .reveal-up').forEach(r => r.classList.remove('in'));
+    section.classList.add('visible');
     document.getElementById('pNum').textContent = panelNums[p];
     const titleEl = document.querySelector('#panel-' + p + ' .panel-title');
     typeTitle(titleEl, el.querySelector('.burger-label').textContent, () => revealPanel(p));
@@ -298,7 +304,9 @@ function sel(el) {
     document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
     el.classList.add('active');
     document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('visible'));
-    document.getElementById('panel-' + p).classList.add('visible');
+    const section = document.getElementById('panel-' + p);
+    section.querySelectorAll('.reveal, .reveal-up').forEach(r => r.classList.remove('in'));
+    section.classList.add('visible');
     document.getElementById('pNum').textContent = panelNums[p];
     typeTitle(
       document.querySelector('#panel-' + p + ' .panel-title'),
