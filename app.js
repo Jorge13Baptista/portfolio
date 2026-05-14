@@ -1,3 +1,26 @@
+/* ── PROGRESS BAR ── */
+function updateProgress() {
+  const fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = (visited.size / 4 * 100) + '%';
+}
+
+/* ── THEME ── */
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  document.documentElement.classList.add('theme-transition');
+  setTimeout(() => document.documentElement.classList.remove('theme-transition'), 400);
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const isDark = document.documentElement.classList.contains('dark');
+  const moon = document.getElementById('iconMoon');
+  const sun  = document.getElementById('iconSun');
+  if (moon) moon.style.display = isDark ? 'none' : '';
+  if (sun)  sun.style.display  = isDark ? '' : 'none';
+}
+
 /* ── AUDIO ── */
 let soundOn = true;
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -100,6 +123,7 @@ function checkAchievement(panelId) {
   if (!visited.has(panelId)) {
     visited.add(panelId);
     setTimeout(() => {
+      updateProgress();
       if (achievements[panelId]) showToast(achievements[panelId]);
       if (visited.size === 4 && !allUnlocked) {
         allUnlocked = true;
@@ -122,8 +146,12 @@ function startIdle() {
 
 function resetIdle() {
   idleActive = false;
-  jbMark.classList.remove('idle');
   clearTimeout(idleTimer);
+  if (jbMark.classList.contains('idle')) {
+    // Play Sonic's exit dash before stopping the hex spin
+    jbMark.classList.add('sonic-exit');
+    setTimeout(() => jbMark.classList.remove('idle', 'sonic-exit'), 350);
+  }
   idleTimer = setTimeout(startIdle, 9000);
 }
 
@@ -324,11 +352,24 @@ document.addEventListener('keydown', e => {
   if (!booted) return;
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     playNav();
-    if (e.key === 'ArrowDown') currentIndex = Math.min(currentIndex + 1, panels.length - 1);
-    if (e.key === 'ArrowUp')   currentIndex = Math.max(currentIndex - 1, 0);
-    const menuItem = document.querySelector(`.menu-item[data-panel="${panels[currentIndex]}"]`);
+    const newIndex = e.key === 'ArrowDown'
+      ? Math.min(currentIndex + 1, panels.length - 1)
+      : Math.max(currentIndex - 1, 0);
+    if (newIndex === currentIndex) return;
+    const menuItem = document.querySelector(`.menu-item[data-panel="${panels[newIndex]}"]`);
     if (menuItem) sel(menuItem);
   }
+});
+
+updateThemeIcon();
+
+/* ── SYSTEM THEME WATCHER ── */
+/* Responds to OS dark/light changes in real time, but only when the
+   user hasn't made an explicit choice of their own. */
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  if (localStorage.getItem('theme')) return; // user has a manual preference — respect it
+  document.documentElement.classList.toggle('dark', e.matches);
+  updateThemeIcon();
 });
 
 runBoot();
