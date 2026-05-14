@@ -14,11 +14,19 @@
     if (window.innerWidth <= 680 || screen.width <= 680) {
       document.documentElement.classList.add('is-mobile');
     }
+    /* Restore dark mode before first paint to avoid flash.
+       Priority: explicit user choice (localStorage) → OS preference */
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      document.documentElement.classList.add('dark');
+    }
   </script>
 </head>
 <body>
 <div class="p5" id="root">
   <div class="bg-lines"></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
   <div class="scanline" id="scanline"></div>
 
   <svg style="position:absolute;inset:0;pointer-events:none;overflow:hidden;width:100%;height:100%;" viewBox="0 0 700 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -84,6 +92,19 @@
         <polygon class="jb-hex" points="36,4 67,20 67,52 36,68 5,52 5,20"/>
         <text class="jb-text" x="36" y="44" text-anchor="middle">JB</text>
       </svg>
+      <!-- Sonic idle easter egg -->
+      <div id="sonic" aria-hidden="true">
+        <div class="s-spike s-spike-1"></div>
+        <div class="s-spike s-spike-2"></div>
+        <div class="s-spike s-spike-3"></div>
+        <div class="s-body"></div>
+        <div class="s-leg s-leg-1"><div class="s-shoe"></div></div>
+        <div class="s-leg s-leg-2"><div class="s-shoe"></div></div>
+        <div class="s-head">
+          <div class="s-eye"></div>
+          <div class="s-muzzle"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -195,12 +216,12 @@
             </div>
             <div class="exp-col">
               <div class="exp-col-title reveal-up">Certifications</div>
-              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">Development Lifecycle & Deployment Architect</div></div>
-              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">Platform Developer I</div></div>
-              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">OmniStudio Developer</div></div>
-              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">AI Associate</div></div>
-              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">App Builder</div></div>
-              <div class="cert-row reveal"><div class="cert-dot"></div><div class="cert-text">Salesforce Associate</div></div>
+              <div class="cert-row reveal"><svg class="cert-badge" width="14" height="16" viewBox="0 0 14 16" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,4.5 13,11.5 7,15 1,11.5 1,4.5" fill="#c03838"/></svg><div class="cert-text">Development Lifecycle & Deployment Architect</div></div>
+              <div class="cert-row reveal"><svg class="cert-badge" width="14" height="16" viewBox="0 0 14 16" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,4.5 13,11.5 7,15 1,11.5 1,4.5" fill="#1a5ce8"/></svg><div class="cert-text">Platform Developer I</div></div>
+              <div class="cert-row reveal"><svg class="cert-badge" width="14" height="16" viewBox="0 0 14 16" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,4.5 13,11.5 7,15 1,11.5 1,4.5" fill="#0ea5e9"/></svg><div class="cert-text">OmniStudio Developer</div></div>
+              <div class="cert-row reveal"><svg class="cert-badge" width="14" height="16" viewBox="0 0 14 16" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,4.5 13,11.5 7,15 1,11.5 1,4.5" fill="#8b5cf6"/></svg><div class="cert-text">AI Associate</div></div>
+              <div class="cert-row reveal"><svg class="cert-badge" width="14" height="16" viewBox="0 0 14 16" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,4.5 13,11.5 7,15 1,11.5 1,4.5" fill="#16a34a"/></svg><div class="cert-text">App Builder</div></div>
+              <div class="cert-row reveal"><svg class="cert-badge" width="14" height="16" viewBox="0 0 14 16" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,4.5 13,11.5 7,15 1,11.5 1,4.5" fill="#38bdf8"/></svg><div class="cert-text">Salesforce Associate</div></div>
             </div>
           </div>
         </div>
@@ -252,13 +273,27 @@
     <div class="kb-hints">
       <div class="kb-hint"><div class="kb-key">↑ ↓</div><div class="kb-desc">navigate</div></div>
     </div>
-    <div class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Toggle sound">
-      <svg id="soundIcon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 6h3l4-3v10l-4-3H2V6z" fill="#1a5ce8"/>
-        <path id="soundWave1" d="M11 5.5a3 3 0 0 1 0 5" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
-        <path id="soundWave2" d="M12.5 3.5a5.5 5.5 0 0 1 0 9" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
-        <path id="soundMute" d="M11 6l3 4M14 6l-3 4" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round" style="display:none"/>
-      </svg>
+    <div class="bar-controls">
+      <div class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark mode">
+        <svg id="themeIcon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <g id="iconMoon">
+            <circle cx="7.5" cy="8" r="5" fill="#1a5ce8"/>
+            <circle id="moonCutout" cx="9.5" cy="6.5" r="4"/>
+          </g>
+          <g id="iconSun" style="display:none">
+            <circle cx="8" cy="8" r="2.8" fill="#1a5ce8"/>
+            <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.6 3.6l1.5 1.5M11 11l1.5 1.5M12.4 3.6l-1.5 1.5M4.6 10.6l-1.5 1.5" stroke="#1a5ce8" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+          </g>
+        </svg>
+      </div>
+      <div class="sound-btn" id="soundBtn" onclick="toggleSound()" title="Toggle sound">
+        <svg id="soundIcon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 6h3l4-3v10l-4-3H2V6z" fill="#1a5ce8"/>
+          <path id="soundWave1" d="M11 5.5a3 3 0 0 1 0 5" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
+          <path id="soundWave2" d="M12.5 3.5a5.5 5.5 0 0 1 0 9" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round"/>
+          <path id="soundMute" d="M11 6l3 4M14 6l-3 4" stroke="#1a5ce8" stroke-width="1.2" stroke-linecap="round" style="display:none"/>
+        </svg>
+      </div>
     </div>
     <div class="corner-mark">JB · 2026</div>
   </div>
