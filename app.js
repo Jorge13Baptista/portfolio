@@ -320,6 +320,30 @@ function runBoot() {
   setTimeout(go, 2700);
 }
 
+/* ── HOBBY DETAIL PAGES ── */
+function openHobby(id) {
+  const main   = document.querySelector('.hobbies-main');
+  const detail = document.getElementById('hobby-detail-' + id);
+  if (!detail) return;
+  playSelect();
+  main.classList.add('exit');
+  // Stagger reveal items once the detail slides in
+  const items = detail.querySelectorAll('.reveal, .reveal-up');
+  items.forEach(el => el.classList.remove('in'));
+  setTimeout(() => {
+    detail.classList.add('active');
+    items.forEach((el, i) => setTimeout(() => el.classList.add('in'), 60 + i * 80));
+  }, 300);
+}
+
+function closeHobby() {
+  const detail = document.querySelector('.hobby-detail.active');
+  if (!detail) return;
+  playNav();
+  detail.classList.remove('active');
+  setTimeout(() => document.querySelector('.hobbies-main').classList.remove('exit'), 320);
+}
+
 /* ── SELECT ── */
 function sel(el) {
   const p = el.dataset.panel;
