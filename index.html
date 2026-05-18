@@ -93,18 +93,7 @@
         <text class="jb-text" x="36" y="44" text-anchor="middle">JB</text>
       </svg>
       <!-- Sonic idle easter egg -->
-      <div id="sonic" aria-hidden="true">
-        <div class="s-spike s-spike-1"></div>
-        <div class="s-spike s-spike-2"></div>
-        <div class="s-spike s-spike-3"></div>
-        <div class="s-body"></div>
-        <div class="s-leg s-leg-1"><div class="s-shoe"></div></div>
-        <div class="s-leg s-leg-2"><div class="s-shoe"></div></div>
-        <div class="s-head">
-          <div class="s-eye"></div>
-          <div class="s-muzzle"></div>
-        </div>
-      </div>
+      <img id="sonic" src="assets/sonic-run.gif" alt="" aria-hidden="true" draggable="false">
     </div>
   </div>
 
@@ -232,16 +221,126 @@
         <div class="panel-title" data-title="Interests"></div>
         <div class="panel-body">
           <div class="hobbies-layout">
-            <div class="reveal-up hobbies-flavour">— Off the clock</div>
-            <div class="reveal-up hobbies-lead">Not just a developer.<br><span>A person with good taste.</span></div>
-            <div class="hobby-grid">
-              <div class="hobby-card reveal-up"><div class="hobby-icon">🎮</div><div class="hobby-name">Videogames</div><div class="hobby-desc">From JRPGs to strategy — a lifelong player.</div></div>
-              <div class="hobby-card reveal-up"><div class="hobby-icon">📺</div><div class="hobby-name">TV Shows</div><div class="hobby-desc">Binge-watching is a serious discipline.</div></div>
-              <div class="hobby-card reveal-up"><div class="hobby-icon">⛩️</div><div class="hobby-name">Anime & Japan</div><div class="hobby-desc">Deep appreciation for all things Japanese culture.</div></div>
-              <div class="hobby-card reveal-up"><div class="hobby-icon">🔭</div><div class="hobby-name">Cosmology</div><div class="hobby-desc">The universe is the biggest open-world map.</div></div>
-              <div class="hobby-card reveal-up"><div class="hobby-icon">📚</div><div class="hobby-name">Reading</div><div class="hobby-desc">Always a book on the go — fiction to philosophy.</div></div>
-              <div class="hobby-card reveal-up"><div class="hobby-icon">🍳</div><div class="hobby-name">Cooking</div><div class="hobby-desc">Recipes are just code that feeds people.</div></div>
+
+            <!-- ── MAIN HOBBIES GRID ── -->
+            <div class="hobbies-main">
+              <div class="reveal-up hobbies-flavour">— Off the clock</div>
+              <div class="reveal-up hobbies-lead">Not just a developer.<br><span>A person with good taste.</span></div>
+              <div class="hobby-grid">
+                <div class="hobby-card reveal-up" data-hobby="videogames" onclick="openHobby('videogames')"><div class="hobby-icon">🎮</div><div class="hobby-name">Videogames</div><div class="hobby-desc">From JRPGs to strategy — a lifelong player.</div></div>
+                <div class="hobby-card reveal-up"><div class="hobby-icon">📺</div><div class="hobby-name">TV Shows</div><div class="hobby-desc">Binge-watching is a serious discipline.</div></div>
+                <div class="hobby-card reveal-up"><div class="hobby-icon">⛩️</div><div class="hobby-name">Anime & Japan</div><div class="hobby-desc">Deep appreciation for all things Japanese culture.</div></div>
+                <div class="hobby-card reveal-up"><div class="hobby-icon">🔭</div><div class="hobby-name">Cosmology</div><div class="hobby-desc">The universe is the biggest open-world map.</div></div>
+                <div class="hobby-card reveal-up"><div class="hobby-icon">📚</div><div class="hobby-name">Reading</div><div class="hobby-desc">Always a book on the go — fiction to philosophy.</div></div>
+                <div class="hobby-card reveal-up"><div class="hobby-icon">🍳</div><div class="hobby-name">Cooking</div><div class="hobby-desc">Recipes are just code that feeds people.</div></div>
+              </div>
             </div>
+
+            <!-- ── DETAIL: VIDEOGAMES ── -->
+            <div class="hobby-detail" id="hobby-detail-videogames">
+              <button class="hobby-back" onclick="closeHobby()">◀ Hobbies</button>
+              <div class="hobby-detail-header">
+                <span class="hobby-detail-icon">🎮</span>
+                <div>
+                  <div class="hobby-detail-sub">Top 10</div>
+                  <div class="hobby-detail-title">Best Games I Ever Played</div>
+                </div>
+              </div>
+              <div class="games-grid">
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#01</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game1.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">Sonic the Hedgehog 2</div>
+                    <div class="game-desc">The game that started it all. Pure speed, perfect level design, and a soundtrack that still lives rent-free in my head. The first game that made me feel like games could be art.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#02</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game2.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">Persona 5 Royal</div>
+                    <div class="game-desc">A masterclass in style, story and systems. Over 100 hours and it never outstayed its welcome. The Phantom Thieves earned a permanent place in my hall of fame.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#03</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game3.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">Metal Gear Solid 3: Snake Eater</div>
+                    <div class="game-desc">Kojima at his most creative. A spy thriller wrapped in a survival game wrapped in a philosophical saga. The Ladder. You know the one.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#04</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game4.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">Chrono Trigger</div>
+                    <div class="game-desc">The greatest JRPG ever made, full stop. Time travel done right, a cast of unforgettable characters, and multiple endings before that was cool. A timeless blueprint.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#05</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game5.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">Red Dead Redemption 2</div>
+                    <div class="game-desc">The most immersive world ever built in a game. Arthur Morgan's story hit harder than most films. Rockstar's magnum opus — and probably won't be topped.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#06</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game6.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">The Legend of Zelda: Breath of the Wild</div>
+                    <div class="game-desc">Redefined open-world design overnight. The first time I climbed a tower and looked at the horizon, I felt something no game had ever given me before — complete freedom.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#07</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game7.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">Final Fantasy VII Remake</div>
+                    <div class="game-desc">Took everything I loved about the original and added layers of depth I didn't know I needed. Combat feels incredible. Cloud's story hits differently as an adult.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#08</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game8.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">StarCraft II: Wings of Liberty</div>
+                    <div class="game-desc">The strategy game that rewired my brain. Every match is a puzzle at 200 APM. The single-player campaign is also criminally underrated as a sci-fi story.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#09</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game9.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">Shadow of the Colossus</div>
+                    <div class="game-desc">Each colossus is a boss fight, a puzzle, and a moral question. Proof that games can make you feel guilty for winning. One of the medium's few true works of art.</div>
+                  </div>
+                </div>
+
+                <div class="game-card reveal-up">
+                  <div class="game-rank">#10</div>
+                  <div class="game-cover"><!-- <img src="assets/games/game10.jpg" alt=""> --></div>
+                  <div class="game-info">
+                    <div class="game-title">Dark Souls</div>
+                    <div class="game-desc">The game that taught me patience. Every death is a lesson, every bonfire a victory lap. Fromsoft built a world so dense with lore you could spend years unravelling it.</div>
+                  </div>
+                </div>
+
+              </div>
+            </div><!-- /hobby-detail-videogames -->
+
           </div>
         </div>
       </div>

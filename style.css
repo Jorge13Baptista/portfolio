@@ -132,137 +132,41 @@ html.dark .bg-lines { background-image: repeating-linear-gradient(-55deg, transp
 .jb-mark { flex-shrink: 0; cursor: default; position: relative; overflow: visible; }
 .jb-mark svg { display: block; transform-origin: center; }
 .jb-mark.idle svg { animation: idleRotate 3s linear infinite; }
+.jb-mark.idle .jb-text { opacity: 0; transition: opacity 0.3s ease; }
 .jb-hex { fill: var(--bg-light); stroke: var(--accent); stroke-width: 2; transition: fill 0.3s; }
 .jb-mark:hover .jb-hex { fill: var(--accent); }
 .jb-text { font-size: 22px; font-weight: 700; fill: var(--accent); font-family: 'Barlow Condensed', Arial, sans-serif; letter-spacing: 1px; transition: fill 0.3s; }
 .jb-mark:hover .jb-text { fill: #fff; }
 
 /* ── SONIC ── */
-@keyframes sonicLeg1  { 0%,100%{transform:rotate(-30deg)} 50%{transform:rotate(30deg)} }
-@keyframes sonicLeg2  { 0%,100%{transform:rotate(30deg)}  50%{transform:rotate(-30deg)} }
-
 #sonic {
   position: absolute;
-  bottom: 10px;
+  bottom: 8px;
   left: 50%;
-  margin-left: -14px;
-  width: 28px;
-  height: 30px;
+  height: 38px;
+  width: auto;
+  transform: translateX(calc(-50% - 24px)) scale(0.75);
+  transform-origin: bottom center;
   pointer-events: none;
   z-index: 5;
   opacity: 0;
-  transform: translateX(-22px) scale(0.7);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
   transition: opacity 0.35s ease, transform 0.45s cubic-bezier(.34,1.4,.64,1);
 }
 .jb-mark.idle #sonic {
   opacity: 1;
-  transform: translateX(0) scale(1);
+  transform: translateX(-50%) scale(1);
+  /* Wait for JB text to fade out before Sonic runs in */
+  transition-delay: 0.28s;
 }
 .jb-mark.sonic-exit #sonic {
   opacity: 0;
-  transform: translateX(28px) scale(0.7);
+  transform: translateX(calc(-50% + 30px)) scale(0.75);
   transition: opacity 0.28s ease, transform 0.3s cubic-bezier(.4,0,1,1);
+  transition-delay: 0s;
 }
-
-/* Spikes — triangles pointing back-left off the head */
-.s-spike {
-  position: absolute;
-  width: 0; height: 0;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  border-bottom: 9px solid #1466b8;
-}
-.s-spike-1 { top: 1px;  left: 4px;  transform: rotate(-55deg); }
-.s-spike-2 { top: 6px;  left: 1px;  transform: rotate(-80deg); }
-.s-spike-3 { top: 11px; left: 0px;  transform: rotate(-100deg); }
-
-/* Head */
-.s-head {
-  position: absolute;
-  width: 18px; height: 17px;
-  background: #1466b8;
-  border-radius: 50%;
-  top: 2px; left: 5px;
-  overflow: visible;
-}
-
-/* Eye */
-.s-eye {
-  position: absolute;
-  width: 7px; height: 7px;
-  background: #fff;
-  border-radius: 50%;
-  top: 3px; left: 8px;
-}
-.s-eye::after {
-  content: '';
-  position: absolute;
-  width: 4px; height: 4px;
-  background: #3da535;
-  border-radius: 50%;
-  top: 1.5px; left: 1.5px;
-}
-
-/* Muzzle */
-.s-muzzle {
-  position: absolute;
-  width: 9px; height: 6px;
-  background: #f0c090;
-  border-radius: 50%;
-  top: 9px; left: 7px;
-}
-
-/* Body */
-.s-body {
-  position: absolute;
-  width: 13px; height: 9px;
-  background: #1466b8;
-  border-radius: 40% 60% 50% 50%;
-  top: 17px; left: 7px;
-}
-.s-body::before {
-  content: '';
-  position: absolute;
-  width: 7px; height: 5px;
-  background: #f0c090;
-  border-radius: 50%;
-  top: 2px; left: 2px;
-}
-
-/* Legs */
-.s-leg {
-  position: absolute;
-  width: 5px; height: 9px;
-  background: #1466b8;
-  border-radius: 0 0 2px 2px;
-  bottom: 0;
-  transform-origin: top center;
-}
-.s-leg-1 { left: 8px; }
-.s-leg-2 { left: 15px; }
-
-/* Shoes */
-.s-shoe {
-  position: absolute;
-  width: 9px; height: 5px;
-  background: #e31e2c;
-  border-radius: 1px 4px 4px 1px;
-  bottom: -1px;
-  left: -2px;
-}
-.s-shoe::after {
-  content: '';
-  position: absolute;
-  width: 100%; height: 2px;
-  background: rgba(255,255,255,0.55);
-  top: 1.5px; left: 0;
-}
-
-/* Running leg animation — only plays during idle */
-.jb-mark.idle .s-leg-1 { animation: sonicLeg1 0.2s linear infinite; }
-.jb-mark.idle .s-leg-2 { animation: sonicLeg2 0.2s linear infinite; }
-
-/* Hide Sonic on mobile — top bar layout differs */
+/* Hide on mobile — top bar layout differs */
 @media (max-width: 680px) { #sonic { display: none !important; } }
 
 /* ── DIVIDER ── */
@@ -347,13 +251,73 @@ html.dark .bg-lines { background-image: repeating-linear-gradient(-55deg, transp
 .cert-text { font-size: clamp(10px,0.9vw,13px); color: var(--text-mid); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.3; }
 
 /* ── HOBBIES ── */
-.hobbies-layout { flex: 1; display: flex; flex-direction: column; gap: clamp(12px,1.8vh,22px); min-height: 0; }
+.hobbies-layout { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; overflow: hidden; }
+
+/* Main grid wrapper — slides out when a detail opens */
+.hobbies-main { flex: 1; display: flex; flex-direction: column; gap: clamp(12px,1.8vh,22px); min-height: 0; transition: transform 0.32s cubic-bezier(.4,0,.2,1), opacity 0.32s ease; }
+.hobbies-main.exit { transform: translateX(-28px); opacity: 0; pointer-events: none; }
 .hobbies-flavour { font-family: 'Barlow', sans-serif; font-size: clamp(11px,1vw,13px); color: var(--accent); letter-spacing: 2px; text-transform: uppercase; font-weight: 500; }
 .hobbies-lead { font-size: clamp(18px,2.2vw,28px); color: var(--text-head); font-weight: 700; line-height: 1.3; }
 .hobbies-lead span { color: var(--accent); }
 .hobby-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: clamp(8px,1.2vh,16px); flex: 1; }
 .hobby-card { border: 1px solid var(--border); background: var(--bg-card); clip-path: polygon(0 0,100% 0,100% 85%,90% 100%,0 100%); padding: clamp(12px,1.8vh,22px) clamp(10px,1.2vw,16px); display: flex; flex-direction: column; gap: 10px; transition: border-color 0.25s, background 0.25s, opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.25,1,.5,1); cursor: default; }
 .hobby-card:hover { border-color: var(--border-3); background: var(--bg-hover); }
+/* Clickable variant */
+.hobby-card[data-hobby] { cursor: pointer; }
+.hobby-card[data-hobby]:hover { border-color: var(--accent); }
+.hobby-card[data-hobby] .hobby-name::after { content: ' ▶'; font-size: 8px; color: var(--accent); opacity: 0.6; vertical-align: middle; }
+
+/* ── HOBBY DETAIL PAGES ── */
+.hobby-detail {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; gap: 14px;
+  overflow-y: auto; padding-right: 4px;
+  opacity: 0; transform: translateX(40px); pointer-events: none;
+  transition: transform 0.38s cubic-bezier(.34,1.1,.64,1), opacity 0.32s ease;
+}
+.hobby-detail::-webkit-scrollbar { width: 3px; }
+.hobby-detail::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+.hobby-detail.active { opacity: 1; transform: translateX(0); pointer-events: auto; transition-delay: 0.26s; }
+
+/* Back button */
+.hobby-back {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  background: none; border: 1px solid var(--border); color: var(--text-muted);
+  font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; padding: 5px 14px; cursor: pointer;
+  clip-path: polygon(8px 0,100% 0,100% 100%,0 100%,0 8px);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.hobby-back:hover { border-color: var(--accent); color: var(--accent); background: var(--bg-hover); }
+
+/* Detail header */
+.hobby-detail-header { display: flex; align-items: center; gap: 14px; }
+.hobby-detail-icon { font-size: 28px; line-height: 1; }
+.hobby-detail-sub { font-size: 11px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; font-weight: 600; }
+.hobby-detail-title { font-size: clamp(16px,2vw,24px); font-weight: 700; color: var(--text-head); line-height: 1.2; }
+
+/* Games grid */
+.games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.game-card {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--bg-card); border: 1px solid var(--border);
+  padding: 12px; border-radius: 0;
+  clip-path: polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+  transition: border-color 0.2s, background 0.2s, opacity 0.6s cubic-bezier(.4,0,.2,1), transform 0.6s cubic-bezier(.25,1,.5,1);
+}
+.game-card:hover { border-color: var(--accent); background: var(--bg-hover); }
+.game-rank { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 1px; font-family: 'Barlow Condensed', sans-serif; opacity: 0.7; min-width: 24px; padding-top: 2px; }
+.game-cover {
+  width: 50px; height: 66px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--bg-skill), var(--bg-hover));
+  border: 1px solid var(--border);
+  clip-path: polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%);
+  overflow: hidden;
+}
+.game-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.game-info { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.game-title { font-size: 12px; font-weight: 700; color: var(--text-head); letter-spacing: 0.5px; line-height: 1.3; }
+.game-desc { font-size: 11px; color: var(--text-muted); line-height: 1.55; font-family: 'Barlow', sans-serif; font-weight: 400; }
 .hobby-icon { font-size: clamp(20px,2.2vw,28px); line-height: 1; }
 .hobby-name { font-size: clamp(13px,1.2vw,16px); font-weight: 700; color: var(--text-head); text-transform: uppercase; letter-spacing: 1px; }
 .hobby-desc { font-family: 'Barlow', sans-serif; font-size: clamp(11px,0.95vw,13px); color: var(--text-muted); line-height: 1.5; font-weight: 400; margin-top: auto; }
@@ -426,6 +390,10 @@ html.dark .bg-lines { background-image: repeating-linear-gradient(-55deg, transp
   .contact-row { flex: none !important; max-height: none !important; margin-bottom: 8px; }
   .hobby-grid { grid-template-columns: 1fr 1fr !important; height: auto !important; }
   .hobby-card, .skill-item { flex: none !important; }
+  .games-grid { grid-template-columns: 1fr !important; }
+  .hobby-detail { position: static !important; transform: none !important; overflow: visible !important; }
+  .hobbies-main.exit { display: none !important; }
+  .hobby-detail.active { display: flex !important; opacity: 1 !important; }
   .bottom-bar { opacity: 1 !important; }
   .kb-hints { display: none !important; }
   .panel-bg-num { display: none !important; }
